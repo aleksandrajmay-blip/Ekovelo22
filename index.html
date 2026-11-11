@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ЭкоВело учет</title>
+<style>
+:root{
+  --bg:#f3f6f4;--card:#fff;--fg:#1f2a24;--mut:#6b7a71;--line:#dfe7e2;
+  --acc:#1f8a4c;--acc2:#166b3a;--danger:#c94343;--hov:#eaf3ed;--warn:#b7791f;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:10px 18px;flex-wrap:wrap}
+header h1{font-size:18px;margin:0;color:var(--acc);white-space:nowrap}
+header .sp{flex:1}
+header .user{font-size:13px;color:var(--mut)}
+header .sig{font-size:11px;color:var(--mut);letter-spacing:.05em}
+.layout{display:flex;min-height:calc(100vh - 56px)}
+nav.side{width:220px;background:var(--card);border-right:1px solid var(--line);padding:14px 8px;flex:0 0 auto}
+nav.side button{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 14px;border-radius:8px;color:var(--fg);font:inherit;cursor:pointer;margin:2px 0}
+nav.side button:hover{background:var(--hov)}
+nav.side button.on{background:var(--acc);color:#fff}
+main{flex:1;padding:18px;min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+h2{margin:0 0 12px;font-size:17px}
+h3{margin:14px 0 8px;font-size:15px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg);padding:7px 12px}
+button:hover{background:var(--hov)}
+button.p{background:var(--acc);color:#fff;border-color:var(--acc)}
+button.p:hover{background:var(--acc2)}
+button.d{color:var(--danger);border-color:#efcaca}
+button.d:hover{background:#fbeaea}
+button.sm{padding:4px 8px;font-size:13px}
+button:disabled{opacity:.5;cursor:default}
+input,select,textarea{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg);width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:-1px}
+label{display:block;font-size:13px;color:var(--mut);margin:8px 0 4px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+tr:hover td{background:var(--hov)}
+.badge{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--hov);color:var(--fg);white-space:nowrap}
+.badge.ok{background:#e2f5e8;color:#166b3a}
+.badge.warn{background:#fcf3df;color:#8a5a12}
+.badge.err{background:#fbe4e4;color:#a12727}
+.mut{color:var(--mut);font-size:13px}
+.empty{color:var(--mut);text-align:center;padding:36px 10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer}
+.tile:hover{border-color:var(--acc)}
+.tile .n{font-weight:600;font-size:15px}
+.tile .p{color:var(--mut);font-size:13px}
+.search{position:relative}
+.search input{padding-right:34px}
+.search .clr{position:absolute;right:4px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--mut);font-size:18px;padding:4px 8px;cursor:pointer}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
+.tabs button{border:0;border-bottom:2px solid transparent;background:none;border-radius:0;padding:8px 14px;color:var(--mut)}
+.tabs button.on{border-bottom-color:var(--acc);color:var(--acc);font-weight:600}
+.modal-bg{position:fixed;inset:0;background:rgba(20,30,25,.55);display:none;align-items:flex-start;justify-content:center;padding:24px 16px;z-index:60;overflow:auto}
+.modal-bg.on{display:flex}
+.modal{background:var(--card);border-radius:14px;padding:20px;width:100%;max-width:640px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal h3{margin-top:0;color:var(--fg);text-transform:none;font-size:17px}
+.modal .act{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--fg);color:var(--card);padding:10px 16px;border-radius:10px;z-index:80;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw}
+.toast.on{opacity:1}
+.login{max-width:360px;margin:8vh auto;padding:24px;background:var(--card);border:1px solid var(--line);border-radius:14px}
+.hidden{display:none!important}
+.chk{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:14px}
+.chk input{width:auto}
+.note{background:#fcf3df;color:#8a5a12;border:1px solid #f0e0b8;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:14px}
+@media (max-width:720px){
+  .layout{flex-direction:column}
+  nav.side{width:100%;border-right:0;border-bottom:1px solid var(--line);display:flex;overflow-x:auto;padding:8px}
+  nav.side button{white-space:nowrap;width:auto;margin:0 4px 0 0}
+  main{padding:12px}
+  header{padding:8px 12px}
+  header h1{font-size:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ ЭКРАН ВХОДА ============ -->
+<div id="loginView" class="hidden">
+  <div class="login">
+    <h2 style="text-align:center;color:var(--acc)">ЭкоВело учет</h2>
+    <p class="mut" style="text-align:center;margin:0 0 14px">Введите своё имя для входа</p>
+    <label>Имя</label>
+    <input id="lName" type="text" autocomplete="off" placeholder="Например: MARM" maxlength="60">
+    <div id="lErr" style="color:var(--danger);font-size:13px;min-height:18px;margin-top:8px"></div>
+    <button class="p" id="lBtn" style="width:100%;margin-top:10px">Войти</button>
+    <p class="mut" style="font-size:12px;text-align:center;margin-top:14px">Первый вход с именем <b>MARM</b> создаёт главного администратора.</p>
+    <p class="mut" style="font-size:11px;text-align:center;letter-spacing:.05em">by MARM</p>
+  </div>
+</div>
+
+<!-- ============ ОСНОВНОЕ ПРИЛОЖЕНИЕ ============ -->
+<div id="appView" class="hidden">
+  <header>
+    <h1>ЭкоВело учет</h1>
+    <div class="sp"></div>
+    <span class="user" id="userInfo"></span>
+    <button class="sm" id="btnLogout">Выйти</button>
+    <span class="sig">by MARM</span>
+  </header>
+  <div class="layout">
+    <nav class="side" id="nav"></nav>
+    <main id="main"></main>
+  </div>
+</div>
+
+<!-- ============ МОДАЛЬНОЕ ОКНО ============ -->
+<div class="modal-bg" id="modalBg"><div class="modal" id="modalBox"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   ЛОКАЛЬНАЯ БАЗА ДАННЫХ (localStorage)
+   ========================================================= */
+const DB_KEY = "ecovelo_db_v1";
+const SESSION_KEY = "ecovelo_session_v1";
+
+// Структура БД по умолчанию
+function emptyDB(){
+  return {
+    staff: [],        // {id, name, role, active, createdAt}
+    permissions: [],  // {userId, section, canView, canEdit}
+    warehouse: [],    // {id, parentId, type, name, qty, note, createdAt, updatedAt}
+    bikes: [],        // {id, invNo, frameNo, iotNo, brand, model, photoUrl, state, faults, notes, createdAt}
+    components: [],   // {id, bikeId, kind, name, checkResult, fault, comment, photoUrl, createdAt}
+    services: [],     // {id, name, description, price, active, createdAt}
+    repairs: [],      // {id, clientLast, clientFirst, clientMid, bikeId, fault, workDone, total, manualTotal, payment, status, acceptedAt, createdByName}
+    repairItems: [],  // {id, repairId, serviceName, qty, unitPrice}
+    audit: []         // {id, userName, action, entity, entityId, at}
+  };
+}
+
+let DB = loadDB();
+
+function loadDB(){
+  try{
+    const raw = localStorage.getItem(DB_KEY);
+    if(!raw) return emptyDB();
+    const parsed = JSON.parse(raw);
+    // гарантируем наличие всех ключей (на случай старых версий)
+    const base = emptyDB();
+    Object.keys(base).forEach(k=>{ if(!Array.isArray(parsed[k])) parsed[k]=[]; });
+    return parsed;
+  }catch(e){
+    console.error("Не удалось прочитать локальную базу:", e);
+    return emptyDB();
+  }
+}
+
+function saveDB(){
+  try{
+    localStorage.setItem(DB_KEY, JSON.stringify(DB));
+    return true;
+  }catch(e){
+    toast("Ошибка сохранения: "+e.message);
+    return false;
+  }
+}
+
+function uid(prefix){
+  return (prefix||"id_") + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8);
+}
+
+// Журнал (пишем вручную, т.к. триггеров БД нет)
+function log(userName, action, entity, entityId){
+  DB.audit.unshift({
+    id: uid("a_"),
+    userName: userName || (ME?ME.name:"—"),
+    action, entity, entityId: entityId||"",
+    at: new Date().toISOString()
+  });
+  if(DB.audit.length > 2000) DB.audit = DB.audit.slice(0,2000);
+}
+
+/* =========================================================
+   УТИЛИТЫ
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
+function btn(txt,cls,fn){const b=el('button',cls,txt);b.type='button';b.onclick=fn;return b;}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2600);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function fmtMoney(v){return new Intl.NumberFormat('ru-RU').format(Number(v)||0)+' ₽';}
+function fmtDate(s){ if(!s) return ''; return new Date(s).toLocaleString('ru-RU',{dateStyle:'short',timeStyle:'short'}); }
+
+const SECTIONS = [
+  {id:'warehouse', label:'Склад'},
+  {id:'bikes', label:'Электровелосипеды'},
+  {id:'electric', label:'Электро'},
+  {id:'price', label:'Прайс'},
+  {id:'repair', label:'Ремонт'},
+  {id:'admin', label:'Администрирование'},
+];
+const BIKE_STATES = {ready:'Готов',diagnostics:'Диагностика',broken:'Неисправен',repair:'В ремонте',wait_parts:'Ожидает запчасти'};
+const COMP_KINDS = {controller:'Контроллер',battery:'Аккумулятор',motor:'Мотор-колесо',display:'Дисплей',wiring:'Проводка',iot:'IoT-модуль',brakes:'Тормоза',other:'Другое'};
+const COMP_RESULTS = {ok:'Исправен',bad:'Неисправен',check:'Требует проверки',unchecked:'Не проверен'};
+const REPAIR_STATUSES = {accepted:'Принят',in_work:'В работе',wait_parts:'Ожидает запчасти',ready:'Готов',issued:'Выдан'};
+const PAYMENTS = {qr:'QR-код',transfer:'Перевод',cash:'Наличные'};
+
+/* ---------- Модальное окно ---------- */
+function openModal(builder){
+  const bg=$('#modalBg'), box=$('#modalBox');
+  box.textContent='';
+  builder(box, ()=>closeModal());
+  bg.classList.add('on');
+}
+function closeModal(){ $('#modalBg').classList.remove('on'); $('#modalBox').textContent=''; }
+$('#modalBg').addEventListener('pointerdown',e=>{ if(e.target.id==='modalBg') closeModal(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+
+/* =========================================================
+   СЕССИЯ И ВХОД
+   ========================================================= */
+let ME = null;    // {id, name, role}
+let PERMS = {};   // { section: {view, edit} }
+
+function loadSession(){
+  try{
+    const raw = localStorage.getItem(SESSION_KEY);
+    if(!raw) return null;
+    const s = JSON.parse(raw);
+    if(!s || !s.name) return null;
+    const st = DB.staff.find(x=>x.name.toLowerCase()===s.name.toLowerCase());
+    if(!st || !st.active) return null;
+    return st;
+  }catch(e){ return null; }
+}
+function saveSession(staff){
+  try{ localStorage.setItem(SESSION_KEY, JSON.stringify({id:staff.id, name:staff.name})); }catch(e){}
+}
+function clearSession(){
+  try{ localStorage.removeItem(SESSION_KEY); }catch(e){}
+}
+
+function buildPerms(staff){
+  const p = {};
+  if(staff.role==='admin'){
+    SECTIONS.forEach(s=>p[s.id]={view:true, edit:true});
+    return p;
+  }
+  DB.permissions.filter(x=>x.userId===staff.id).forEach(x=>{
+    p[x.section] = { view: !!(x.canView||x.canEdit), edit: !!x.canEdit };
+  });
+  return p;
+}
+
+function doLogin(){
+  $('#lErr').textContent='';
+  const name = $('#lName').value.trim();
+  if(!name){ $('#lErr').textContent='Введите имя'; return; }
+
+  let st = DB.staff.find(x=>x.name.toLowerCase()===name.toLowerCase());
+
+  // Первый запуск: MARM создаётся автоматически как админ
+  if(!st && name.toLowerCase()==='marm'){
+    st = {id: uid("s_"), name:'MARM', role:'admin', active:true, createdAt:new Date().toISOString()};
+    DB.staff.push(st);
+    // полные права (для единообразия)
+    SECTIONS.forEach(s=>DB.permissions.push({userId:st.id, section:s.id, canView:true, canEdit:true}));
+    log('MARM','create','staff',st.id);
+    saveDB();
+  }
+
+  if(!st){ $('#lErr').textContent='Имя не найдено. Попросите MARM добавить вас в разделе «Администрирование».'; return; }
+  if(!st.active){ $('#lErr').textContent='Доступ отключён администратором'; return; }
+
+  ME = st;
+  PERMS = buildPerms(st);
+  saveSession(st);
+  enterApp();
+}
+
+function enterApp(){
+  $('#loginView').classList.add('hidden');
+  $('#appView').classList.remove('hidden');
+  $('#userInfo').textContent = `${ME.name} · ${ME.role==='admin'?'главный администратор':'сотрудник'}`;
+  CURRENT = null;
+  buildNav();
+  const first = SECTIONS.find(s=>can(s.id,'view'));
+  if(first) go(first.id); else renderEmpty();
+}
+
+function renderEmpty(){
+  $('#nav').textContent='';
+  $('#main').innerHTML='<div class="card"><h2>Нет доступных разделов</h2><p class="mut">Администратор ещё не выдал вам права.</p></div>';
+}
+
+function showLogin(){
+  $('#appView').classList.add('hidden');
+  $('#loginView').classList.remove('hidden');
+  setTimeout(()=>$('#lName').focus(),50);
+}
+
+$('#lBtn').onclick=doLogin;
+$('#lName').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+$('#btnLogout').onclick=()=>{
+  clearSession();
+  ME=null; PERMS={}; CURRENT=null;
+  showLogin();
+};
+
+function can(section,action){
+  if(!ME) return false;
+  if(ME.role==='admin') return true;
+  const p = PERMS[section];
+  if(!p) return false;
+  return action==='edit' ? !!p.edit : !!(p.view||p.edit);
+}
+
+/* =========================================================
+   НАВИГАЦИЯ
+   ========================================================= */
+let CURRENT = null;
+function buildNav(){
+  const nav=$('#nav'); nav.textContent='';
+  SECTIONS.forEach(s=>{
+    if(!can(s.id,'view')) return;
+    const b=btn(s.label,'',()=>go(s.id));
+    if(CURRENT===s.id) b.classList.add('on');
+    b.dataset.sec=s.id;
+    nav.appendChild(b);
+  });
+}
+function go(sec){
+  CURRENT=sec;
+  $$('#nav button').forEach(b=>b.classList.toggle('on', b.dataset.sec===sec));
+  const m=$('#main'); m.textContent='';
+  if(sec==='warehouse') renderWarehouse(m);
+  else if(sec==='bikes') renderBikes(m);
+  else if(sec==='electric') renderElectric(m);
+  else if(sec==='price') renderPrice(m);
+  else if(sec==='repair') renderRepair(m);
+  else if(sec==='admin') renderAdmin(m);
+}
+
+/* =========================================================
+   СКЛАД
+   ========================================================= */
+let WH = { curId:'', q:'' };
+function renderWarehouse(m){
+  m.textContent='';
+  const card=el('div','card');
+  card.appendChild(el('h2','','Склад'));
+  const row=el('div','row'); row.style.marginBottom='10px';
+  const search=el('div','search'); search.style.flex='1';
+  const inp=el('input'); inp.type='search'; inp.placeholder='Поиск товара по словам…'; inp.value=WH.q;
+  const clr=btn('×','clr',()=>{inp.value='';WH.q='';renderWarehouse($('#main'));});
+  search.appendChild(inp); search.appendChild(clr);
+  row.appendChild(search);
+  if(can('warehouse','edit')) row.appendChild(btn('+ Категория','',()=>whForm('cat',null)));
+  card.appendChild(row);
+  const tree=el('div'); card.appendChild(tree); m.appendChild(card);
+  inp.addEventListener('input',()=>{ WH.q=inp.value; loadWh(tree); });
+  clr.style.display = WH.q?'block':'none';
+  loadWh(tree);
+}
+function loadWh(tree){
+  tree.textContent='';
+  const byId={}; DB.warehouse.forEach(n=>byId[n.id]=n);
+
+  if(WH.q.trim()){
+    const words = WH.q.toLowerCase().replace(/ё/g,'е').split(/\s+/).filter(Boolean);
+    const res = DB.warehouse.filter(n=>{
+      if(n.type!=='item') return false;
+      const path = (()=>{let p=[],c=byId[n.parentId],g=0;while(c&&g++<50){p.unshift(c.name);c=byId[c.parentId];}return p.join(' › ');})();
+      const h=(n.name+' '+path).toLowerCase().replace(/ё/g,'е');
+      return words.every(w=>h.includes(w));
+    });
+    const bar=el('div','row'); bar.style.marginBottom='8px';
+    bar.appendChild(btn('← Ко всем товарам','',()=>{WH.q='';WH.curId='';renderWarehouse($('#main'));}));
+    bar.appendChild(el('span','mut','Найдено: '+res.length));
+    tree.appendChild(bar);
+    if(!res.length){ tree.appendChild(el('div','empty','Ничего не найдено')); return; }
+    res.forEach(n=>tree.appendChild(whItemCard(n,byId,true)));
+    return;
+  }
+
+  if(WH.curId && !byId[WH.curId]) WH.curId='';
+  if(WH.curId){
+    const cur=byId[WH.curId];
+    const head=el('div','card'); head.style.background='var(--hov)';
+    const hr=el('div','row');
+    hr.appendChild(btn('← Назад','',()=>{WH.curId=cur.parentId||'';renderWarehouse($('#main'));}));
+    const nm=el('div'); nm.style.flex='1'; nm.innerHTML='<b>'+esc(cur.name)+'</b>';
+    hr.appendChild(nm);
+    if(can('warehouse','edit')){
+      hr.appendChild(btn('+ Подкатегория','',()=>whForm('cat',cur.id)));
+      hr.appendChild(btn('+ Товар','p',()=>whForm('item',cur.id)));
+      hr.appendChild(btn('✎','sm',()=>whForm('edit',cur)));
+    }
+    if(ME.role==='admin') hr.appendChild(btn('🗑','sm d',()=>whDelete(cur)));
+    head.appendChild(hr); tree.appendChild(head);
+  } else if(can('warehouse','edit')){
+    const bar=el('div','row'); bar.style.marginBottom='8px';
+    bar.appendChild(btn('+ Корневая категория','p',()=>whForm('cat',null)));
+    tree.appendChild(bar);
+  }
+
+  const kids = DB.warehouse.filter(n=>n.parentId === (WH.curId||null)).sort((a,b)=>{
+    if(a.type!==b.type) return a.type==='cat'?-1:1;
+    return a.name.localeCompare(b.name,'ru');
+  });
+  if(!kids.length){ tree.appendChild(el('div','empty', WH.curId?'Пусто. Добавьте товар или подкатегорию.':'Пока пусто. Создайте категорию.')); return; }
+
+  kids.forEach(n=>{
+    if(n.type==='cat'){
+      const c=el('div','tile');
+      c.onclick=()=>{WH.curId=n.id;renderWarehouse($('#main'));};
+      const sum = whSum(n.id, byId);
+      c.innerHTML='<div class="n">📁 '+esc(n.name)+'</div><div class="p">Всего единиц: '+sum+'</div>';
+      tree.appendChild(c);
+    } else tree.appendChild(whItemCard(n,byId,false));
+  });
+}
+function whSum(catId, byId){
+  let s=0;
+  DB.warehouse.forEach(n=>{
+    if(n.type!=='item') return;
+    let c=byId[n.parentId], g=0, ok=false;
+    if(n.parentId===catId) ok=true;
+    while(c&&g++<50){ if(c.id===catId) ok=true; c=byId[c.parentId]; }
+    if(ok) s+=n.qty||0;
+  });
+  return s;
+}
+function whItemCard(n, byId, withPath){
+  const card=el('div','card');
+  const row=el('div','row');
+  const nm=el('div'); nm.style.flex='1';
+  nm.innerHTML='<div style="font-weight:600">'+esc(n.name)+'</div>'+(withPath?('<div class="mut">'+esc(whPath(n,byId))+'</div>'):'')+(n.note?('<div class="mut">'+esc(n.note)+'</div>'):'');
+  row.appendChild(nm);
+  const qty=el('div','row'); qty.style.gap='4px';
+  if(can('warehouse','edit')){
+    qty.appendChild(btn('−','sm',()=>whSetQty(n,(n.qty||0)-1)));
+    qty.appendChild(el('b','',String(n.qty||0)));
+    qty.appendChild(btn('+','sm',()=>whSetQty(n,(n.qty||0)+1)));
+  } else qty.appendChild(el('b','',String(n.qty||0)));
+  row.appendChild(qty);
+  if(can('warehouse','edit')){
+    const a=el('div','row'); a.style.gap='4px';
+    a.appendChild(btn('✎','sm',()=>whForm('edit',n)));
+    if(ME.role==='admin') a.appendChild(btn('🗑','sm d',()=>whDelete(n)));
+    row.appendChild(a);
+  }
+  card.appendChild(row); return card;
+}
+function whPath(n,byId){
+  let p=[],c=byId[n.parentId],g=0;
+  while(c&&g++<50){p.unshift(c.name);c=byId[c.parentId];}
+  return p.join(' › ');
+}
+function whSetQty(n,v){
+  if(v<0)v=0;
+  n.qty = v; n.updatedAt = new Date().toISOString();
+  log(ME.name,'update','warehouse',n.id); saveDB();
+  renderWarehouse($('#main'));
+}
+function whForm(mode,arg){
+  openModal((box,close)=>{
+    const isEdit = mode==='edit';
+    const type = isEdit?arg.type:mode;
+    box.appendChild(el('h3','',isEdit?'Редактировать':(type==='cat'?'Категория':'Товар')));
+    const i1=el('input'); i1.value=isEdit?arg.name:'';
+    box.appendChild(el('label','','Название')); box.appendChild(i1);
+    let i2=null, i3=null;
+    if(type==='item'){
+      i2=el('input'); i2.type='number'; i2.min='0'; i2.value=isEdit?(arg.qty||0):1;
+      box.appendChild(el('label','','Количество')); box.appendChild(i2);
+      i3=el('textarea'); i3.rows=2; i3.value=isEdit?(arg.note||''):'';
+      box.appendChild(el('label','','Примечание')); box.appendChild(i3);
+    }
+    const err=el('div'); err.style.color='var(--danger)'; err.style.fontSize='13px'; box.appendChild(err);
+    const act=el('div','act'); act.appendChild(btn('Отмена','',close));
+    act.appendChild(btn('Сохранить','p',()=>{
+      const name=i1.value.trim(); if(!name){err.textContent='Введите название';return;}
+      if(isEdit){
+        arg.name=name;
+        if(type==='item'){arg.qty=Math.max(0,parseInt(i2.value)||0);arg.note=i3.value.trim();}
+        arg.updatedAt=new Date().toISOString();
+        log(ME.name,'update','warehouse',arg.id);
+      } else {
+        const node={id:uid("w_"),parentId:(typeof arg==='string')?arg:null,type,name,
+          qty: type==='item'?(Math.max(0,parseInt(i2.value)||0)):0,
+          note: i3?i3.value.trim():'',
+          createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+        DB.warehouse.push(node);
+        log(ME.name,'create','warehouse',node.id);
+      }
+      saveDB(); close(); toast('Сохранено'); renderWarehouse($('#main'));
+    }));
+    box.appendChild(act); setTimeout(()=>i1.focus(),30);
+  });
+}
+function whDelete(n){
+  openModal((box,close)=>{
+    box.appendChild(el('h3','','Удалить «'+n.name+'»?'));
+    box.appendChild(el('p','mut','Вложенные элементы тоже удалятся. Действие необратимо.'));
+    const err=el('div'); err.style.color='var(--danger)'; box.appendChild(err);
+    const act=el('div','act'); act.appendChild(btn('Отмена','',close));
+    act.appendChild(btn('Удалить','d',()=>{
+      // удаляем рекурсивно
+      const toDel=new Set([n.id]);
+      let changed=true;
+      while(changed){
+        changed=false;
+        DB.warehouse.forEach(x=>{
+          if(x.parentId && toDel.has(x.parentId) && !toDel.has(x.id)){ toDel.add(x.id); changed=true; }
+        });
+      }
+      DB.warehouse = DB.warehouse.filter(x=>!toDel.has(x.id));
+      toDel.forEach(id=>log(ME.name,'delete','warehouse',id));
+      saveDB(); close(); toast('Удалено'); renderWarehouse($('#main'));
+    }));
+    box.appendChild(act);
+  });
+}
+
+/* =========================================================
+   ВЕЛОСИПЕДЫ
+   ========================================================= */
+function renderBikes(m){
+  m.textContent='';
+  const card=el('div','card');
+  card.appendChild(el('h2','','Электровелосипеды'));
+  const row=el('div','row'); row.style.marginBottom='10px';
+  const inp=el('input'); inp.type='search'; inp.placeholder='Поиск по инв. № / раме / IoT'; inp.style.flex='1';
+  row.appendChild(inp);
+  if(can('bikes','edit')) row.appendChild(btn('+ Велосипед','p',()=>bikeForm(null)));
+  card.appendChild(row);
+  const list=el('div'); card.appendChild(list); m.appendChild(card);
+
+  function load(){
+    list.textContent='';
+    const term=inp.value.trim().toLowerCase();
+    let data = DB.bikes.slice().sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+    if(term) data = data.filter(b=>
+      (b.invNo||'').toLowerCase().includes(term) ||
+      (b.frameNo||'').toLowerCase().includes(term) ||
+      (b.iotNo||'').toLowerCase().includes(term)
+    );
+    if(!data.length){ list.appendChild(el('div','empty','Нет велосипедов')); return; }
+    const tbl=el('table');
+    tbl.innerHTML='<thead><tr><th>Инв. №</th><th>Рама</th><th>Марка/модель</th><th>Состояние</th><th></th></tr></thead>';
+    const tb=el('tbody');
+    data.forEach(b=>{
+      const tr=el('tr');
+      tr.innerHTML='<td>'+esc(b.invNo)+'</td><td>'+esc(b.frameNo)+'</td><td>'+esc((b.brand||'')+' '+(b.model||''))+'</td>'
+        +'<td><span class="badge '+(b.state==='ready'?'ok':b.state==='broken'?'err':b.state==='wait_parts'?'warn':'')+'">'+esc(BIKE_STATES[b.state]||b.state)+'</span></td>';
+      const td=el('td'); const a=el('div','row'); a.style.gap='4px';
+      if(can('bikes','edit')) a.appendChild(btn('✎','sm',()=>bikeForm(b)));
+      if(ME.role==='admin') a.appendChild(btn('🗑','sm d',()=>{
+        if(!confirm('Удалить велосипед '+b.invNo+'?')) return;
+        DB.bikes = DB.bikes.filter(x=>x.id!==b.id);
+        DB.components = DB.components.filter(x=>x.bikeId!==b.id);
+        log(ME.name,'delete','bikes',b.id);
+        saveDB(); toast('Удалено'); load();
+      }));
+      td.appendChild(a); tr.appendChild(td); tb.appendChild(tr);
+    });
+    tbl.appendChild(tb); list.appendChild(tbl);
+  }
+  inp.addEventListener('input',load);
+  load();
+}
+function bikeForm(b){
+  openModal((box,close)=>{
+    box.appendChild(el('h3','',b?'Редактировать велосипед':'Новый велосипед'));
+    const f={};
+    const fields=[['invNo','Инвентарный номер *'],['frameNo','Номер рамы *'],['iotNo','Номер IoT-модуля'],['brand','Марка'],['model','Модель'],['photoUrl','URL фото'],['faults','Неисправности'],['notes','Заметки']];
+    fields.forEach(([k,label])=>{
+      const i=el(k==='faults'||k==='notes'?'textarea':'input');
+      if(k==='faults'||k==='notes') i.rows=2; else i.type='text';
+      i.value = b?(b[k]||''):'';
+      box.appendChild(el('label','',label)); box.appendChild(i); f[k]=i;
+    });
+    const sel=el('select');
+    Object.entries(BIKE_STATES).forEach(([k,v])=>{const o=el('option',null,v);o.value=k;sel.appendChild(o);});
+    sel.value = b?b.state:'ready';
+    box.appendChild(el('label','','Техническое состояние')); box.appendChild(sel); f.state=sel;
+    const err=el('div'); err.style.color='var(--danger)'; err.style.fontSize='13px'; box.appendChild(err);
+    const act=el('div','act'); act.appendChild(btn('Отмена','',close));
+    act.appendChild(btn('Сохранить','p',()=>{
+      const inv=f.invNo.value.trim(), frame=f.frameNo.value.trim();
+      if(!inv||!frame){err.textContent='Инв. номер и номер рамы обязательны';return;}
+      // проверка уникальности
+      const dupInv = DB.bikes.find(x=>x.id!==(b?b.id:'') && x.invNo.toLowerCase()===inv.toLowerCase());
+      if(dupInv){err.textContent='Инв. номер уже существует';return;}
+      const dupFrame = DB.bikes.find(x=>x.id!==(b?b.id:'') && x.frameNo.toLowerCase()===frame.toLowerCase());
+      if(dupFrame){err.textContent='Номер рамы уже существует';return;}
+      const payload={invNo:inv,frameNo:frame,iotNo:f.iotNo.value.trim(),
+        brand:f.brand.value.trim(),model:f.model.value.trim(),photoUrl:f.photoUrl.value.trim(),
+        state:f.state.value,faults:f.faults.value.trim(),notes:f.notes.value.trim()};
+      if(b){ Object.assign(b,payload); log(ME.name,'update','bikes',b.id); }
+      else { const nb=Object.assign({id:uid("b_"),createdAt:new Date().toISOString()},payload); DB.bikes.push(nb); log(ME.name,'create','bikes',nb.id); }
+      saveDB(); close(); toast('Сохранено'); renderBikes($('#main'));
+    }));
+    box.appendChild(act);
+  });
+}
+
+/* =========================================================
+   ЭЛЕКТРО
+   ========================================================= */
+function renderElectric(m){
+  m.textContent='';
+  const card=el('div','card');
+  card.appendChild(el('h2','','Электро: компоненты'));
+  const row=el('div','row'); row.style.marginBottom='10px';
+  if(can('electric','edit')) row.appendChild(btn('+ Компонент','p',()=>compForm(null)));
+  card.appendChild(row);
+  const list=el('div'); card.appendChild(list); m.appendChild(card);
+  const bikeMap={}; DB.bikes.forEach(b=>bikeMap[b.id]=b);
+  const data = DB.components.slice().sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+  if(!data.length){ list.appendChild(el('div','empty','Нет компонентов')); return; }
+  const tbl=el('table');
+  tbl.innerHTML='<thead><tr><th>Велосипед</th><th>Тип</th><th>Название</th><th>Проверка</th><th></th></tr></thead>';
+  const tb=el('tbody');
+  data.forEach(c=>{
+    const tr=el('tr');
+    const b=bikeMap[c.bikeId];
+    tr.innerHTML='<td>'+esc(b?b.invNo:'—')+'</td><td>'+esc(COMP_KINDS[c.kind]||c.kind)+'</td><td>'+esc(c.name||'')+'</td>'
+      +'<td><span class="badge '+(c.checkResult==='ok'?'ok':c.checkResult==='bad'?'err':c.checkResult==='check'?'warn':'')+'">'+esc(COMP_RESULTS[c.checkResult]||c.checkResult)+'</span></td>';
+    const td=el('td'); const a=el('div','row'); a.style.gap='4px';
+    if(can('electric','edit')) a.appendChild(btn('✎','sm',()=>compForm(c)));
+    if(ME.role==='admin') a.appendChild(btn('🗑','sm d',()=>{
+      if(!confirm('Удалить компонент?')) return;
+      DB.components = DB.components.filter(x=>x.id!==c.id);
+      log(ME.name,'delete','components',c.id);
+      saveDB(); toast('Удалено'); renderElectric($('#main'));
+    }));
+    td.appendChild(a); tr.appendChild(td); tb.appendChild(tr);
+  });
+  tbl.appendChild(tb); list.appendChild(tbl);
+}
+function compForm(c){
+  openModal((box,close)=>{
+    box.appendChild(el('h3','',c?'Редактировать компонент':'Новый компонент'));
+    if(!DB.bikes.length){ box.appendChild(el('p','mut','Сначала добавьте хотя бы один велосипед в разделе «Электровелосипеды».')); }
+    const f={};
+    const bsel=el('select');
+    DB.bikes.slice().sort((a,b)=>(a.invNo||'').localeCompare(b.invNo||'')).forEach(b=>{
+      const o=el('option',null,b.invNo+' · '+(b.model||''));o.value=b.id;bsel.appendChild(o);
+    });
+    if(c) bsel.value=c.bikeId;
+    box.appendChild(el('label','','Велосипед *')); box.appendChild(bsel); f.bikeId=bsel;
+
+    const ksel=el('select');
+    Object.entries(COMP_KINDS).forEach(([k,v])=>{const o=el('option',null,v);o.value=k;ksel.appendChild(o);});
+    if(c) ksel.value=c.kind;
+    box.appendChild(el('label','','Тип компонента')); box.appendChild(ksel); f.kind=ksel;
+
+    const name=el('input'); name.value=c?(c.name||''):'';
+    box.appendChild(el('label','','Название / модель')); box.appendChild(name); f.name=name;
+
+    const rsel=el('select');
+    Object.entries(COMP_RESULTS).forEach(([k,v])=>{const o=el('option',null,v);o.value=k;rsel.appendChild(o);});
+    if(c) rsel.value=c.checkResult;
+    box.appendChild(el('label','','Результат проверки')); box.appendChild(rsel); f.checkResult=rsel;
+
+    const fault=el('textarea'); fault.rows=2; fault.value=c?(c.fault||''):'';
+    box.appendChild(el('label','','Описание неисправности')); box.appendChild(fault); f.fault=fault;
+
+    const cmt=el('textarea'); cmt.rows=2; cmt.value=c?(c.comment||''):'';
+    box.appendChild(el('label','','Комментарий')); box.appendChild(cmt); f.comment=cmt;
+
+    const err=el('div'); err.style.color='var(--danger)'; box.appendChild(err);
+    const act=el('div','act'); act.appendChild(btn('Отмена','',close));
+    act.appendChild(btn('Сохранить','p',()=>{
+      if(!f.bikeId.value){err.textContent='Выберите велосипед';return;}
+      const payload={bikeId:f.bikeId.value,kind:f.kind.value,name:f.name.value.trim(),
+        checkResult:f.checkResult.value,fault:f.fault.value.trim(),comment:f.comment.value.trim()};
+      if(c){ Object.assign(c,payload); log(ME.name,'update','components',c.id); }
+      else { const nc=Object.assign({id:uid("c_"),createdAt:new Date().toISOString()},payload); DB.components.push(nc); log(ME.name,'create','components',nc.id); }
+      saveDB(); close(); toast('Сохранено'); renderElectric($('#main'));
+    }));
+    box.appendChild(act);
+  });
+}
+
+/* =========================================================
+   ПРАЙС
+   ========================================================= */
+function renderPrice(m){
+  m.textContent='';
+  const card=el('div','card');
+  card.appendChild(el('h2','','Прайс услуг'));
+  if(ME.role==='admin'){
+    const row=el('div','row'); row.style.marginBottom='10px';
+    row.appendChild(btn('+ Услуга','p',()=>priceForm(null)));
+    card.appendChild(row);
+  } else {
+    card.appendChild(el('p','mut','Изменение прайса доступно только главному администратору.'));
+  }
+  const list=el('div'); card.appendChild(list); m.appendChild(card);
+  const data = DB.services.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||'','ru'));
+  if(!data.length){ list.appendChild(el('div','empty','Прайс пуст')); return; }
+  const tbl=el('table');
+  tbl.innerHTML='<thead><tr><th>Название</th><th>Описание</th><th>Цена</th><th>Статус</th><th></th></tr></thead>';
+  const tb=el('tbody');
+  data.forEach(s=>{
+    const tr=el('tr');
+    tr.innerHTML='<td>'+esc(s.name)+'</td><td>'+esc(s.description||'')+'</td><td>'+fmtMoney(s.price)+'</td>'
+      +'<td><span class="badge '+(s.active?'ok':'')+'">'+(s.active?'Активна':'Отключена')+'</span></td>';
+    const td=el('td'); const a=el('div','row'); a.style.gap='4px';
+    if(ME.role==='admin'){
+      a.appendChild(btn('✎','sm',()=>priceForm(s)));
+      a.appendChild(btn(s.active?'Откл.':'Вкл.','sm',()=>{
+        s.active=!s.active; log(ME.name,'update','services',s.id);
+        saveDB(); toast('Обновлено'); renderPrice($('#main'));
+      }));
+      a.appendChild(btn('🗑','sm d',()=>{
+        if(!confirm('Удалить услугу «'+s.name+'»? История ремонтов сохранится.')) return;
+        DB.services = DB.services.filter(x=>x.id!==s.id);
+        log(ME.name,'delete','services',s.id);
+        saveDB(); toast('Удалено'); renderPrice($('#main'));
+      }));
+    }
+    td.appendChild(a); tr.appendChild(td); tb.appendChild(tr);
+  });
+  tbl.appendChild(tb); list.appendChild(tbl);
+}
+function priceForm(s){
+  openModal((box,close)=>{
+    box.appendChild(el('h3','',s?'Редактировать услугу':'Новая услуга'));
+    const n=el('input'); n.value=s?s.name:'';
+    const d=el('textarea'); d.rows=2; d.value=s?(s.description||''):'';
+    const p=el('input'); p.type='number'; p.min='0'; p.step='0.01'; p.value=s?s.price:0;
+    box.appendChild(el('label','','Название')); box.appendChild(n);
+    box.appendChild(el('label','','Описание')); box.appendChild(d);
+    box.appendChild(el('label','','Стоимость, ₽')); box.appendChild(p);
+    const err=el('div'); err.style.color='var(--danger)'; box.appendChild(err);
+    const act=el('div','act'); act.appendChild(btn('Отмена','',close));
+    act.appendChild(btn('Сохранить','p',()=>{
+      if(!n.value.trim()){err.textContent='Введите название';return;}
+      const payload={name:n.value.trim(),description:d.value.trim(),price:Number(p.value)||0};
+      if(s){ Object.assign(s,payload); log(ME.name,'update','services',s.id); }
+      else { const ns=Object.assign({id:uid("sv_"),active:true,createdAt:new Date().toISOString()},payload); DB.services.push(ns); log(ME.name,'create','services',ns.id); }
+      saveDB(); close(); toast('Сохранено'); renderPrice($('#main'));
+    }));
+    box.appendChild(act);
+  });
+}
+
+/* =========================================================
+   РЕМОНТ
+   ========================================================= */
+function renderRepair(m){
+  m.textContent='';
+  const card=el('div','card');
+  card.appendChild(el('h2','','Ремонт: заказы'));
+  const row=el('div','row'); row.style.marginBottom='10px';
+  if(can('repair','edit')) row.appendChild(btn('+ Принять работу','p',()=>repairForm(null)));
+  card.appendChild(row);
+  const list=el('div'); card.appendChild(list); m.appendChild(card);
+  const data = DB.repairs.slice().sort((a,b)=>(b.acceptedAt||'').localeCompare(a.acceptedAt||''));
+  if(!data.length){ list.appendChild(el('div','empty','Нет заказов')); return; }
+  const tbl=el('table');
+  tbl.innerHTML='<thead><tr><th>Дата</th><th>Клиент</th><th>Статус</th><th>Итог</th><th>Оплата</th><th>Принял</th><th></th></tr></thead>';
+  const tb=el('tbody');
+  data.forEach(r=>{
+    const tr=el('tr');
+    tr.innerHTML='<td>'+esc(fmtDate(r.acceptedAt))+'</td><td>'+esc([r.clientLast,r.clientFirst,r.clientMid].filter(Boolean).join(' '))+'</td>'
+      +'<td><span class="badge">'+esc(REPAIR_STATUSES[r.status]||r.status)+'</span></td><td>'+fmtMoney(r.total)+'</td><td>'+esc(PAYMENTS[r.payment]||r.payment)+'</td><td>'+esc(r.createdByName||'—')+'</td>';
+    const td=el('td'); const a=el('div','row'); a.style.gap='4px';
+    if(can('repair','edit')) a.appendChild(btn('✎','sm',()=>repairForm(r)));
+    if(ME.role==='admin') a.appendChild(btn('🗑','sm d',()=>{
+      if(!confirm('Удалить заказ?')) return;
+      DB.repairs = DB.repairs.filter(x=>x.id!==r.id);
+      DB.repairItems = DB.repairItems.filter(x=>x.repairId!==r.id);
+      log(ME.name,'delete','repairs',r.id);
+      saveDB(); toast('Удалено'); renderRepair($('#main'));
+    }));
+    td.appendChild(a); tr.appendChild(td); tb.appendChild(tr);
+  });
+  tbl.appendChild(tb); list.appendChild(tbl);
+}
+function repairForm(r){
+  const bikes = DB.bikes.slice().sort((a,b)=>(a.invNo||'').localeCompare(b.invNo||''));
+  const services = DB.services.filter(s=>s.active).sort((a,b)=>(a.name||'').localeCompare(b.name||'','ru'));
+  let items = r ? DB.repairItems.filter(x=>x.repairId===r.id).map(x=>({serviceName:x.serviceName,qty:x.qty,unitPrice:x.unitPrice})) : [];
+
+  openModal((box,close)=>{
+    box.appendChild(el('h3','',r?'Редактировать заказ':'Принять работу'));
+    const f={};
+    [['clientLast','Фамилия'],['clientFirst','Имя'],['clientMid','Отчество']].forEach(([k,l])=>{
+      const i=el('input');i.value=r?(r[k]||''):'';box.appendChild(el('label','',l));box.appendChild(i);f[k]=i;
+    });
+
+    const bsel=el('select');
+    bsel.appendChild(Object.assign(el('option',null,'— без привязки —'),{value:''}));
+    bikes.forEach(b=>{const o=el('option',null,b.invNo+' · '+(b.model||''));o.value=b.id;bsel.appendChild(o);});
+    if(r&&r.bikeId) bsel.value=r.bikeId;
+    box.appendChild(el('label','','Велосипед из реестра')); box.appendChild(bsel); f.bikeId=bsel;
+
+    const fault=el('textarea'); fault.rows=2; fault.value=r?(r.fault||''):'';
+    box.appendChild(el('label','','Неисправность')); box.appendChild(fault); f.fault=fault;
+
+    const work=el('textarea'); work.rows=2; work.value=r?(r.workDone||''):'';
+    box.appendChild(el('label','','Выполненные работы')); box.appendChild(work); f.workDone=work;
+
+    box.appendChild(el('h3','','Услуги из прайса'));
+    const itemsBox=el('div'); box.appendChild(itemsBox);
+    function renderItems(){
+      itemsBox.textContent='';
+      if(!items.length){ itemsBox.appendChild(el('div','mut','Услуги не выбраны')); }
+      items.forEach((it,idx)=>{
+        const row=el('div','row'); row.style.margin='4px 0';
+        const nm=el('div',null,it.serviceName); nm.style.flex='1';
+        const qty=el('input'); qty.type='number'; qty.min='1'; qty.value=it.qty; qty.style.width='80px';
+        qty.onchange=()=>{it.qty=Math.max(1,Number(qty.value)||1);recalc();};
+        const price=el('span',null,fmtMoney(it.unitPrice)); price.style.width='100px';
+        const del=btn('×','sm d',()=>{items.splice(idx,1);renderItems();recalc();});
+        row.appendChild(nm);row.appendChild(qty);row.appendChild(price);row.appendChild(del);
+        itemsBox.appendChild(row);
+      });
+    }
+    renderItems();
+
+    const addRow=el('div','row'); addRow.style.marginTop='6px';
+    const ssel=el('select');
+    ssel.appendChild(Object.assign(el('option',null,'— выбрать услугу —'),{value:''}));
+    services.forEach(s=>{const o=el('option',null,s.name+' · '+fmtMoney(s.price));o.value=s.id;ssel.appendChild(o);});
+    addRow.appendChild(ssel);
+    addRow.appendChild(btn('+ Добавить','',()=>{
+      const id=ssel.value; if(!id) return;
+      const s=services.find(x=>x.id===id); if(!s) return;
+      items.push({serviceName:s.name,qty:1,unitPrice:Number(s.price)});
+      renderItems(); recalc();
+    }));
+    box.appendChild(addRow);
+
+    const totalBox=el('div'); totalBox.style.margin='10px 0'; box.appendChild(totalBox);
+    const manualChk=el('input'); manualChk.type='checkbox'; manualChk.checked=r?r.manualTotal:false;
+    const manualWrap=el('div','chk'); manualWrap.appendChild(manualChk); manualWrap.appendChild(el('span',null,'Индивидуальная итоговая стоимость (вручную)'));
+    box.appendChild(manualWrap);
+    const manualInp=el('input'); manualInp.type='number'; manualInp.min='0'; manualInp.step='0.01';
+    manualInp.value = r?r.total:0; manualInp.disabled = !manualChk.checked;
+    box.appendChild(manualInp);
+
+    function calcAuto(){ return items.reduce((s,i)=>s+Number(i.unitPrice)*Number(i.qty),0); }
+    function recalc(){
+      if(manualChk.checked) totalBox.innerHTML='<b>Итог (вручную): '+fmtMoney(Number(manualInp.value)||0)+'</b>';
+      else totalBox.innerHTML='<b>Итог по прайсу: '+fmtMoney(calcAuto())+'</b>';
+    }
+    manualChk.onchange=()=>{ manualInp.disabled=!manualChk.checked; if(!manualChk.checked) manualInp.value=calcAuto(); recalc(); };
+    manualInp.oninput=recalc;
+    recalc();
+
+    const psel=el('select');
+    Object.entries(PAYMENTS).forEach(([k,v])=>{const o=el('option',null,v);o.value=k;psel.appendChild(o);});
+    if(r) psel.value=r.payment;
+    box.appendChild(el('label','','Способ оплаты')); box.appendChild(psel); f.payment=psel;
+
+    const stsel=el('select');
+    Object.entries(REPAIR_STATUSES).forEach(([k,v])=>{const o=el('option',null,v);o.value=k;stsel.appendChild(o);});
+    if(r) stsel.value=r.status;
+    box.appendChild(el('label','','Статус')); box.appendChild(stsel); f.status=stsel;
+
+    const err=el('div'); err.style.color='var(--danger)'; box.appendChild(err);
+    const act=el('div','act'); act.appendChild(btn('Отмена','',close));
+    act.appendChild(btn('Сохранить','p',()=>{
+      if(!f.clientLast.value.trim()||!f.clientFirst.value.trim()){err.textContent='Фамилия и имя обязательны';return;}
+      const total = manualChk.checked ? (Number(manualInp.value)||0) : calcAuto();
+      const payload={
+        clientLast:f.clientLast.value.trim(),clientFirst:f.clientFirst.value.trim(),clientMid:f.clientMid.value.trim(),
+        bikeId:f.bikeId.value||null,fault:f.fault.value.trim(),workDone:f.workDone.value.trim(),
+        total,manualTotal:manualChk.checked,payment:f.payment.value,status:f.status.value
+      };
+      let repId;
+      if(r){
+        Object.assign(r,payload); repId=r.id;
+        DB.repairItems = DB.repairItems.filter(x=>x.repairId!==r.id);
+        log(ME.name,'update','repairs',r.id);
+      } else {
+        const nr=Object.assign({id:uid("r_"),acceptedAt:new Date().toISOString(),createdByName:ME.name},payload);
+        DB.repairs.push(nr); repId=nr.id;
+        log(ME.name,'create','repairs',nr.id);
+      }
+      items.forEach(it=>{
+        DB.repairItems.push({id:uid("ri_"),repairId:repId,serviceName:it.serviceName,qty:it.qty,unitPrice:it.unitPrice});
+      });
+      saveDB(); close(); toast('Сохранено'); renderRepair($('#main'));
+    }));
+    box.appendChild(act);
+  });
+}
+
+/* =========================================================
+   АДМИН
+   ========================================================= */
+function renderAdmin(m){
+  m.textContent='';
+  if(ME.role!=='admin'){
+    m.innerHTML='<div class="card"><h2>Доступ только для MARM</h2></div>'; return;
+  }
+  const tabs=el('div','tabs');
+  const tabUsers=btn('Сотрудники','on',()=>showTab('users'));
+  const tabLog=btn('Журнал действий','',()=>showTab('log'));
+  const tabData=btn('Данные','',()=>showTab('data'));
+  tabs.appendChild(tabUsers); tabs.appendChild(tabLog); tabs.appendChild(tabData);
+  m.appendChild(tabs);
+  const body=el('div'); m.appendChild(body);
+  function showTab(t){
+    [tabUsers,tabLog,tabData].forEach(b=>b.classList.remove('on'));
+    ({users:tabUsers,log:tabLog,data:tabData})[t].classList.add('on');
+    body.textContent='';
+    if(t==='users') renderUsersTab(body);
+    else if(t==='log') renderLogTab(body);
+    else renderDataTab(body);
+  }
+  showTab('users');
+}
+
+function renderUsersTab(body){
+  const card=el('div','card');
+  card.appendChild(el('h2','','Сотрудники'));
+  const row=el('div','row'); row.style.marginBottom='10px';
+  row.appendChild(btn('+ Добавить сотрудника','p',()=>staffForm(null)));
+  card.appendChild(row);
+  const tbl=el('table');
+  tbl.innerHTML='<thead><tr><th>Имя</th><th>Роль</th><th>Активен</th><th></th></tr></thead>';
+  const tb=el('tbody');
+  DB.staff.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||'','ru')).forEach(p=>{
+    const tr=el('tr');
+    tr.innerHTML='<td>'+esc(p.name)+'</td>'
+      +'<td><span class="badge '+(p.role==='admin'?'ok':'')+'">'+(p.role==='admin'?'Главный админ':'Сотрудник')+'</span></td>'
+      +'<td><span class="badge '+(p.active?'ok':'err')+'">'+(p.active?'Да':'Нет')+'</span></td>';
+    const td=el('td'); const a=el('div','row'); a.style.gap='4px';
+    a.appendChild(btn('Права','sm',()=>permsForm(p)));
+    a.appendChild(btn('✎','sm',()=>staffForm(p)));
+    if(p.name!=='MARM'){
+      a.appendChild(btn(p.active?'Откл.':'Вкл.','sm',()=>{
+        p.active=!p.active; log(ME.name,'update','staff',p.id);
+        saveDB(); toast('Обновлено'); renderAdmin($('#main'));
+      }));
+      a.appendChild(btn('🗑','sm d',()=>{
+        if(!confirm('Удалить сотрудника '+p.name+'?')) return;
+        DB.staff = DB.staff.filter(x=>x.id!==p.id);
+        DB.permissions = DB.permissions.filter(x=>x.userId!==p.id);
+        log(ME.name,'delete','staff',p.id);
+        saveDB(); toast('Удалено'); renderAdmin($('#main'));
+      }));
+    }
+    td.appendChild(a); tr.appendChild(td); tb.appendChild(tr);
+  });
+  tbl.appendChild(tb); card.appendChild(tbl);
+  body.appendChild(card);
+}
+function staffForm(p){
+  openModal((box,close)=>{
+    box.appendChild(el('h3','',p?'Изменить сотрудника':'Новый сотрудник'));
+    const n=el('input'); n.value=p?p.name:'';
+    box.appendChild(el('label','','Имя для входа')); box.appendChild(n);
+    const rsel=el('select');
+    [['employee','Сотрудник'],['admin','Главный админ']].forEach(([k,v])=>{const o=el('option',null,v);o.value=k;rsel.appendChild(o);});
+    rsel.value = p?p.role:'employee';
+    if(p && p.name==='MARM'){ rsel.disabled=true; }
+    box.appendChild(el('label','','Роль')); box.appendChild(rsel);
+    const err=el('div'); err.style.color='var(--danger)'; box.appendChild(err);
+    const act=el('div','act'); act.appendChild(btn('Отмена','',close));
+    act.appendChild(btn('Сохранить','p',()=>{
+      const name=n.value.trim(); if(!name){err.textContent='Введите имя';return;}
+      const dup = DB.staff.find(x=>x.id!==(p?p.id:'') && x.name.toLowerCase()===name.toLowerCase());
+      if(dup){err.textContent='Такое имя уже занято';return;}
+      if(p){ p.name=name; if(!rsel.disabled) p.role=rsel.value; log(ME.name,'update','staff',p.id); }
+      else {
+        const ns={id:uid("s_"),name,role:rsel.value,active:true,createdAt:new Date().toISOString()};
+        DB.staff.push(ns); log(ME.name,'create','staff',ns.id);
+      }
+      saveDB(); close(); toast('Сохранено'); renderAdmin($('#main'));
+    }));
+    box.appendChild(act); setTimeout(()=>n.focus(),30);
+  });
+}
+function permsForm(p){
+  const map={}; DB.permissions.filter(x=>x.userId===p.id).forEach(r=>map[r.section]=r);
+  openModal((box,close)=>{
+    box.appendChild(el('h3','','Права: '+p.name));
+    if(p.role==='admin') box.appendChild(el('p','mut','Главный администратор имеет полный доступ ко всем разделам.'));
+    const items={};
+    SECTIONS.forEach(s=>{
+      const row=el('div','chk');
+      const v=el('input'); v.type='checkbox'; v.checked = p.role==='admin' ? true : !!(map[s.id]&&(map[s.id].canView||map[s.id].canEdit));
+      const e=el('input'); e.type='checkbox'; e.checked = p.role==='admin' ? true : !!(map[s.id]&&map[s.id].canEdit);
+      e.onchange=()=>{ if(e.checked) v.checked=true; };
+      const lab1=el('label'); lab1.style.margin='0'; lab1.appendChild(v); lab1.appendChild(document.createTextNode(' просмотр'));
+      const lab2=el('label'); lab2.style.margin='0 0 0 12px'; lab2.appendChild(e); lab2.appendChild(document.createTextNode(' редактирование'));
+      row.appendChild(el('span',null,s.label+':'));
+      row.appendChild(lab1); row.appendChild(lab2);
+      if(s.id==='price'){ e.disabled=true; e.checked=false; lab2.title='Изменение прайса только администратор'; }
+      box.appendChild(row);
+      items[s.id]={view:v,edit:e};
+    });
+    const err=el('div'); err.style.color='var(--danger)'; box.appendChild(err);
+    const act=el('div','act'); act.appendChild(btn('Отмена','',close));
+    act.appendChild(btn('Сохранить','p',()=>{
+      if(p.role==='admin'){ close(); return; }
+      DB.permissions = DB.permissions.filter(x=>x.userId!==p.id);
+      SECTIONS.forEach(s=>{
+        const it=items[s.id];
+        let v=it.view.checked||it.edit.checked;
+        let e=it.edit.checked&&s.id!=='price';
+        if(v||e) DB.permissions.push({userId:p.id,section:s.id,canView:v,canEdit:e});
+      });
+      log(ME.name,'update','permissions',p.id);
+      saveDB(); close(); toast('Права сохранены'); renderAdmin($('#main'));
+    }));
+    box.appendChild(act);
+  });
+}
+function renderLogTab(body){
+  const card=el('div','card');
+  card.appendChild(el('h2','','Журнал действий'));
+  if(!DB.audit.length){ card.appendChild(el('div','empty','Журнал пуст')); body.appendChild(card); return; }
+  const tbl=el('table');
+  tbl.innerHTML='<thead><tr><th>Когда</th><th>Кто</th><th>Действие</th><th>Объект</th></tr></thead>';
+  const tb=el('tbody');
+  DB.audit.slice(0,300).forEach(a=>{
+    const tr=el('tr');
+    tr.innerHTML='<td>'+esc(fmtDate(a.at))+'</td><td>'+esc(a.userName||'—')+'</td>'
+      +'<td>'+esc(a.action)+'</td><td>'+esc(a.entity)+'</td>';
+    tb.appendChild(tr);
+  });
+  tbl.appendChild(tb); card.appendChild(tbl); body.appendChild(card);
+}
+function renderDataTab(body){
+  const card=el('div','card');
+  card.appendChild(el('h2','','Данные'));
+  card.appendChild(el('div','note','Локальная база хранится в этом браузере. Чтобы перенести данные на другое устройство или сделать резервную копию — используйте экспорт в JSON. При импорте текущие данные будут заменены.'));
+  const row=el('div','row');
+  row.appendChild(btn('📥 Скачать резервную копию (JSON)','p',exportDB));
+  row.appendChild(btn('📤 Загрузить из файла','',importDB));
+  row.appendChild(btn('🗑 Очистить всё','d',()=>{
+    if(!confirm('Удалить ВСЕ данные без возможности восстановления?')) return;
+    if(!confirm('Точно? Это необратимо.')) return;
+    localStorage.removeItem(DB_KEY);
+    localStorage.removeItem(SESSION_KEY);
+    location.reload();
+  }));
+  card.appendChild(row);
+  const info=el('div'); info.style.marginTop='14px'; info.className='mut';
+  info.innerHTML='Сотрудников: '+DB.staff.length+'<br>'
+    +'Категорий и товаров: '+DB.warehouse.length+'<br>'
+    +'Велосипедов: '+DB.bikes.length+'<br>'
+    +'Компонентов: '+DB.components.length+'<br>'
+    +'Услуг в прайсе: '+DB.services.length+'<br>'
+    +'Ремонтов: '+DB.repairs.length+'<br>'
+    +'Записей в журнале: '+DB.audit.length;
+  card.appendChild(info);
+  body.appendChild(card);
+}
+function exportDB(){
+  try{
+    const blob = new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'ecovelo-backup-'+new Date().toISOString().slice(0,10)+'.json';
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    toast('Резервная копия скачана');
+  }catch(e){ toast('Ошибка экспорта: '+e.message); }
+}
+function importDB(){
+  const inp = document.createElement('input');
+  inp.type='file'; inp.accept='application/json,.json';
+  inp.onchange = ()=>{
+    const file = inp.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const data = JSON.parse(reader.result);
+        if(!data || !Array.isArray(data.staff)) throw new Error('Файл не похож на резервную копию');
+        if(!confirm('Заменить текущие данные данными из файла?')) return;
+        DB = data;
+        const base = emptyDB(); Object.keys(base).forEach(k=>{ if(!Array.isArray(DB[k])) DB[k]=[]; });
+        saveDB();
+        // Перечитываем сессию — текущий пользователь мог исчезнуть
+        const s = loadSession();
+        if(s){ ME = s; PERMS = buildPerms(s); enterApp(); }
+        else { clearSession(); ME=null; PERMS={}; showLogin(); }
+        toast('Импорт завершён');
+      }catch(e){ toast('Ошибка импорта: '+e.message); }
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+
+/* =========================================================
+   СТАРТ
+   ========================================================= */
+(function boot(){
+  // Если localStorage недоступен (например, file:// в некоторых браузерах) — предупредим
+  try{
+    localStorage.setItem('__test__','1');
+    localStorage.removeItem('__test__');
+  }catch(e){
+    alert('Браузер блокирует localStorage. Откройте файл через локальный сервер (например, python -m http.server) или через GitHub Pages.');
+  }
+  const s = loadSession();
+  if(s){
+    ME = s; PERMS = buildPerms(s);
+    enterApp();
+  } else {
+    showLogin();
+  }
+})();
+</script>
+</body>
+</html>
