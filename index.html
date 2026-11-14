@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("ecovelo_theme")||"light"}catch(e){}</script>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Эковело CRM Екатеринбург</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#f1f5fb;--card:#fff;--fg:#1b2433;--mut:#66758c;--line:#d9e2f0;--acc:#2563eb;--acc2:#1d4ed8;--danger:#c94343;--hov:#e8f0fd;--warn:#b7791f;--okbg:#e2f5e8;--okfg:#166b3a;--wbg:#fcf3df;--wfg:#8a5a12;--ebg:#fbe4e4;--efg:#a12727;--dbd:#efcaca;--dhov:#fbeaea;--nbd:#f0e0b8;--mine:#dbe8fd}
+[data-theme=dark]{color-scheme:dark;--bg:#0f1624;--card:#182133;--fg:#e4eaf5;--mut:#8b9ab3;--line:#28344a;--acc:#3b82f6;--acc2:#2f6fe0;--danger:#e06a6a;--hov:#202c42;--okbg:#1c3a28;--okfg:#7fdca0;--wbg:#3b3017;--wfg:#e8c476;--ebg:#3d2020;--efg:#f19a9a;--dbd:#5a2d2d;--dhov:#3a2323;--nbd:#5a4a22;--mine:#1f3a66}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:10px 18px;flex-wrap:wrap}
+header h1{font-size:18px;margin:0;color:var(--acc);white-space:nowrap}
+header .sp{flex:1}
+header .user{font-size:13px;color:var(--mut)}
+header .sig{font-size:11px;color:var(--mut);letter-spacing:.05em}
+.layout{display:flex;min-height:calc(100vh - 56px)}
+nav.side{width:220px;background:var(--card);border-right:1px solid var(--line);padding:14px 8px;flex:0 0 auto}
+nav.side button{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 14px;border-radius:8px;color:var(--fg);font:inherit;cursor:pointer;margin:2px 0}
+nav.side button:hover{background:var(--hov)}
+nav.side button.on{background:var(--acc);color:#fff}
+main{flex:1;padding:18px;min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+h2{margin:0 0 12px;font-size:17px}
+h3{margin:14px 0 8px;font-size:15px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg);padding:7px 12px}
+button:hover{background:var(--hov)}
+button.p{background:var(--acc);color:#fff;border-color:var(--acc)}
+button.p:hover{background:var(--acc2)}
+button.d{color:var(--danger);border-color:var(--dbd)}
+button.d:hover{background:var(--dhov)}
+button.sm{padding:4px 8px;font-size:13px}
+button:disabled{opacity:.5;cursor:default}
+input,select,textarea{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg);width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:-1px}
+label{display:block;font-size:13px;color:var(--mut);margin:8px 0 4px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+tr:hover td{background:var(--hov)}
+.badge{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--hov);color:var(--fg);white-space:nowrap}
+.badge.ok{background:var(--okbg);color:var(--okfg)}
+.badge.warn{background:var(--wbg);color:var(--wfg)}
+.badge.err{background:var(--ebg);color:var(--efg)}
+.mut{color:var(--mut);font-size:13px}
+.empty{color:var(--mut);text-align:center;padding:36px 10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer}
+.tile:hover{border-color:var(--acc)}
+.tile .n{font-weight:600;font-size:15px}
+.tile .p{color:var(--mut);font-size:13px}
+.search{position:relative}
+.search input{padding-right:34px}
+.search .clr{position:absolute;right:4px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--mut);font-size:18px;padding:4px 8px;cursor:pointer}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
+.tabs button{border:0;border-bottom:2px solid transparent;background:none;border-radius:0;padding:8px 14px;color:var(--mut)}
+.tabs button.on{border-bottom-color:var(--acc);color:var(--acc);font-weight:600}
+.modal-bg{position:fixed;inset:0;background:rgba(15,25,45,.55);display:none;align-items:flex-start;justify-content:center;padding:24px 16px;z-index:60;overflow:auto}
+.modal-bg.on{display:flex}
+.modal{background:var(--card);border-radius:14px;padding:20px;width:100%;max-width:640px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal h3{margin-top:0;color:var(--fg);text-transform:none;font-size:17px}
+.modal .act{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--fg);color:var(--card);padding:10px 16px;border-radius:10px;z-index:80;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw}
+.toast.on{opacity:1}
+.login{max-width:360px;margin:8vh auto;padding:24px;background:var(--card);border:1px solid var(--line);border-radius:14px}
+.hidden{display:none!important}
+.chk{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:14px}
+.chk input{width:auto}
+.note{background:var(--wbg);color:var(--wfg);border:1px solid var(--nbd);border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:14px}
+.ubadge{display:none;background:var(--danger);color:#fff;border-radius:999px;font-size:11px;padding:0 6px;margin-left:6px;line-height:18px}
+.bk{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;padding-right:64px}
+.fab{position:fixed;right:18px;bottom:18px;width:54px;height:54px;border-radius:50%;background:var(--acc);color:#fff;font-size:24px;border:0;box-shadow:0 6px 20px rgba(0,0,0,.3);z-index:45;padding:0}
+.fab:hover{background:var(--acc2)}
+.fab .ubadge{position:absolute;top:-2px;right:-2px;margin:0}
+.minic{position:fixed;right:18px;bottom:84px;width:360px;max-width:calc(100vw - 24px);background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.3);z-index:50;overflow:hidden}
+.minic .mh{display:flex;gap:6px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line)}
+.minic .mh .sp{flex:1}
+.minic .msg{max-width:95%}
+.chatbox.mini{height:300px}
+.mention{background:var(--hov);color:var(--acc);border-radius:4px;padding:0 3px;font-weight:600}
+.msg.mentioned{border-color:var(--acc)}
+.msg.flash{outline:2px solid var(--acc)}
+.rq{border-left:3px solid var(--acc);padding:2px 8px;margin:4px 0;background:var(--hov);border-radius:4px;font-size:13px;cursor:pointer}
+.chatbox{height:min(60vh,520px);overflow:auto;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--bg)}
+.msg{position:relative;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 36px 8px 10px;margin:6px 0;max-width:80%}
+.msg.mine{background:var(--mine);margin-left:auto}
+.cdel{position:absolute;right:4px;top:4px;padding:0 6px}
+.cday{text-align:center;color:var(--mut);font-size:12px;margin:8px 0}
+.cimg{max-width:260px;max-height:220px;border-radius:8px;display:block;margin-top:6px;cursor:pointer}
+.emo{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;font-size:22px}
+.emo span{cursor:pointer;padding:2px 4px;border-radius:6px}.emo span:hover{background:var(--hov)}
+@media (max-width:720px){.layout{flex-direction:column}nav.side{width:100%;border-right:0;border-bottom:1px solid var(--line);display:flex;overflow-x:auto;padding:8px}nav.side button{white-space:nowrap;width:auto;margin:0 4px 0 0}main{padding:12px}header{padding:8px 12px}header h1{font-size:16px}}
+</style>
+</head>
+<body>
+
+<div id="loginView" class="hidden">
+  <div class="login">
+    <h2 style="text-align:center;color:var(--acc)">Эковело CRM Екатеринбург</h2>
+    <p class="mut" style="text-align:center;margin:0 0 14px">Введите своё имя для входа</p>
+    <label>Имя</label>
+    <input id="lName" type="text" autocomplete="off" placeholder="Например: MARM" maxlength="60">
+    <label>PIN-код</label>
+    <input id="lPin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••">
+    <div id="lErr" style="color:var(--danger);font-size:13px;min-height:18px;margin-top:8px"></div>
+    <button class="p" id="lBtn" style="width:100%;margin-top:10px">Войти</button>
+    <p class="mut" style="font-size:12px;text-align:center;margin-top:14px">PIN-код выдаёт главный администратор.</p>
+    <p class="mut" style="font-size:11px;text-align:center;letter-spacing:.05em">by MARM</p>
+  </div>
+</div>
+
+<div id="connErrorView" class="hidden">
+  <div class="login">
+    <h2 style="text-align:center;color:var(--danger)">Нет связи с базой</h2>
+    <p class="mut" style="text-align:center;margin:0 0 14px">Проверьте интернет и повторите попытку</p>
+    <div id="connErr" style="color:var(--danger);font-size:13px;min-height:18px;margin:8px 0"></div>
+    <button class="p" id="connRetry" style="width:100%;margin-top:10px">Повторить</button>
+  </div>
+</div>
+
+<div id="appView" class="hidden">
+  <header>
+    <h1>Эковело CRM Екатеринбург</h1>
+    <div class="sp"></div>
+    <span class="user" id="userInfo"></span>
+    <button class="sm" id="btnPfx" title="Мой префикс (должность)">✎ Префикс</button>
+    <button class="sm" id="btnPin" title="Сменить свой PIN-код">🔑</button>
+    <button class="sm" id="btnTheme" title="Тёмная / светлая тема">🌙</button>
+    <button class="sm" id="btnLogout">Выйти</button>
+    <span class="sig">by MARM</span>
+  </header>
+  <div class="layout">
+    <nav class="side" id="nav"></nav>
+    <main><div id="main"></div><div id="bkBar" class="bk"></div></main>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg"><div class="modal" id="modalBox"></div></div>
+<div class="toast" id="toast"></div>
+<button class="fab hidden" id="fab" title="Чат">💬<span class="ubadge" id="fbadge"></span></button>
+<div class="minic hidden" id="miniChat"><div class="mh"><b>💬 Чат</b><span class="sp"></span><button class="sm" id="miniOpen" title="Открыть полностью">⤢</button><button class="sm" id="miniX" title="Закрыть">×</button></div><div id="miniBody"></div></div>
+
+<script>
+/* =========================================================
+   SUPABASE: ПОДКЛЮЧЕНИЕ
+   ========================================================= */
+const SUPABASE_URL = "https://ugccikvfccdcfdmaonue.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnY2Npa3ZmY2NkY2ZkbWFvbnVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ0MTM3NzEsImV4cCI6MjEwOTk4OTc3MX0.mI5D_Y2Q6FjPeg2i2b_C-ENakrKXQSybSEOzCYvuo7s";
+
+const { createClient } = supabase;
+let supabaseClient = null;
+
+async function initSupabase(){
+  const client = createClient(SUPABASE_URL, SUPABASE_KEY);
+  const { error } = await client.from('staff').select('id').limit(1);
+  if(error) throw new Error(error.message);
+  supabaseClient = client;
+  return true;
+}
+
+/* =========================================================
+   ЛОКАЛЬНАЯ КОПИЯ ДАННЫХ
+   ========================================================= */
+function emptyDB(){
+  return {staff:[],permissions:[],warehouse:[],bikes:[],components:[],services:[],repairs:[],repairItems:[],audit:[]};
+}
+let DB = emptyDB();
+
+function uid(prefix){
+  return (prefix||"id_") + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8);
+}
+
+async function loadAllFromServer(){
+  const tables = ['staff','permissions','warehouse','bikes','components','services','repairs','repair_items','audit'];
+  const names  = ['staff','permissions','warehouse','bikes','components','services','repairs','repairItems','audit'];
+  const results = await Promise.all(tables.map(t=>supabaseClient.from(t).select('*')));
+  results.forEach((r,i)=>{
+    if(r.error){ console.error('Ошибка загрузки '+names[i]+':', r.error); DB[names[i]] = []; }
+    else DB[names[i]] = r.data || [];
+  });
+}
+
+async function dbInsert(table, row){
+  const { data, error } = await supabaseClient.from(table).insert([row]).select();
+  if(error){ toast('Ошибка сохранения: '+error.message); return null; }
+  return data ? data[0] : null;
+}
+async function dbUpdate(table, id, patch){
+  const { error } = await supabaseClient.from(table).update(patch).eq('id', id);
+  if(error){ toast('Ошибка обновления: '+error.message); return false; }
+  return true;
+}
+async function dbDelete(table, id){
+  const { error } = await supabaseClient.from(table).delete().eq('id', id);
+  if(error){ toast('Ошибка удаления: '+error.message); return false; }
+  return true;
+}
+async function dbDeleteMany(table, ids){
+  if(!ids.length) return true;
+  const { error } = await supabaseClient.from(table).delete().in('id', ids);
+  if(error){ toast('Ошибка удаления: '+error.message); return false; }
+  return true;
+}
+
+async function log(userName, action, entity, entityId){
+  const row = {id:uid("a_"), userName:userName||(ME?ME.name:"—"), action, entity, entityId:entityId||"", at:new Date().toISOString()};
+  DB.audit.unshift(row);
+  if(DB.audit.length>2000) DB.audit = DB.audit.slice(0,2000);
+  await supabaseClient.from('audit').insert([row]);
+}
+
+/* =========================================================
+   УТИЛИТЫ
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
+function btn(txt,cls,fn){const b=el('button',cls,txt);b.type='button';b.onclick=fn;return b;}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2600);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function fmtMoney(v){return new Intl.NumberFormat('ru-RU').format(Number(v)||0)+' ₽';}
+function fmtDate(s){ if(!s) return ''; return new Date(s).toLocaleString('ru-RU',{dateStyle:'short',timeStyle:'short'}); }
+
+const SECTIONS = [
+  {id:'warehouse', label:'Склад'},
+  {id:'bikes', label:'Электровелосипеды'},
+  {id:'electric', label:'Наличие'},
+  {id:'price', label:'Прайс'},
+  {id:'repair', label:'Ремонт'},
+  {id:'chat', label:'Чат'},
+  {id:'admin', label:'Администрирование'},
+];
+const BIKE_STATES = {ready:'Готов',diagnostics:'Диагностика',broken:'Неисправен',repair:'В ремонте',wait_parts:'Ожидает запчасти'};
+const COMP_KINDS = {controller:'Контроллер',battery:'Аккумулятор',motor:'Мотор-колесо',display:'Дисплей',wiring:'Проводка',iot:'IoT-модуль',brakes:'Тормоза',other:'Другое'};
+const COMP_RESULTS = {ok:'Исправен',bad:'Неисправен',check:'Требует проверки',unchecked:'Не проверен'};
+const REPAIR_STATUSES = {accepted:'Принят',in_work:'В работе',wait_parts:'Ожидает запчасти',ready:'Готов',issued:'Выдан'};
+const PAYMENTS = {qr:'QR-код',transfer:'Перевод',cash:'Наличные'};
+
+function openModal(builder){
+  const bg=$('#modalBg'), box=$('#modalBox');
+  box.textContent='';
+  builder(box, ()=>closeModal());
+  bg.classList.add('on');
+}
+function closeModal(){ $('#modalBg').classList.remove('on'); $('#modalBox').textContent=''; }
+$('#modalBg').addEventListener('pointerdown',e=>{ if(e.target.id==='modalBg') closeModal(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+
+/* =========================================================
+   СЕССИЯ И ВХОД (через сервер)
+   ========================================================= */
+let ME = null;
+let PERMS = {};
+
+function loadSession(){
+  try{
+    const raw = localStorage.getItem('ecovelo_session_v1');
+    if(!raw) return null;
+    const s = JSON.parse(raw);
+    if(!s || !s.name) return null;
+    const st = DB.staff.find(x=>x.name.toLowerCase()===s.name.toLowerCase());
+    if(!st || !st.active) return null;
+    return st;
+  }catch(e){ return null; }
+}
+function saveSession(staff){
+  try{ localStorage.setItem('ecovelo_session_v1', JSON.stringify({id:staff.id, name:staff.name})); }catch(e){}
+}
+function clearSession(){
+  try{ localStorage.removeItem('ecovelo_session_v1'); }catch(e){}
+}
+
+function buildPerms(staff){
+  const p = {};
+  if(staff.role==='admin'){
+    SECTIONS.forEach(s=>p[s.id]={view:true, edit:true});
+    return p;
+  }
+  DB.permissions.filter(x=>x.userId===staff.id).forEach(x=>{
+    p[x.section] = { view: !!(x.canView||x.canEdit), edit: !!x.canEdit };
+  });
+  return p;
+}
+
+const OWNER_PIN='7913';
+async function hashPin(pin,salt){
+  const d=salt+':'+pin;
+  try{ if(window.crypto&&crypto.subtle){ const h=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(d)); return [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,'0')).join(''); } }catch(e){}
+  let h=5381; for(let i=0;i<d.length;i++) h=((h<<5)+h+d.charCodeAt(i))|0; return 'x'+(h>>>0).toString(16);
+}
+function lockLeft(){try{const f=JSON.parse(localStorage.getItem('ecovelo_fail')||'{}');return Math.max(0,(f.until||0)-Date.now());}catch(e){return 0;}}
+function failLogin(){try{const f=JSON.parse(localStorage.getItem('ecovelo_fail')||'{}');f.n=(f.n||0)+1;if(f.n>=5){f.until=Date.now()+60000;f.n=0;}localStorage.setItem('ecovelo_fail',JSON.stringify(f));}catch(e){}}
+
+async function doLogin(){
+  const E=$('#lErr'); E.textContent='';
+  const name=$('#lName').value.trim(), pin=$('#lPin').value.trim();
+  if(!name||!pin){ E.textContent='Введите имя и PIN-код'; return; }
+  const left=lockLeft(); if(left>0){ E.textContent='Слишком много попыток. Подождите '+Math.ceil(left/1000)+' с.'; return; }
+  const { data, error } = await supabaseClient.from('staff').select('*').ilike('name', name).limit(1);
+  if(error){ E.textContent='Ошибка базы: '+error.message; return; }
+  let st = data && data[0] ? data[0] : null;
+  const isOwner=name.toLowerCase()==='marm';
+  let ok=false;
+  if(st&&st.pinHash) ok=(await hashPin(pin,st.pinSalt))===st.pinHash;
+  else if(isOwner) ok=pin===OWNER_PIN;
+  if(!ok){ failLogin(); E.textContent='Неверное имя или PIN-код. Если PIN-код не выдан — обратитесь к администратору.'; return; }
+  try{localStorage.removeItem('ecovelo_fail');}catch(e){}
+  if(!st){
+    st={id:uid("s_"),name:'MARM',role:'admin',active:true,createdAt:new Date().toISOString()};
+    const created = await dbInsert('staff', st);
+    if(created) st = created;
+    DB.staff.push(st);
+    for(const x of SECTIONS){
+      const pr={id:uid("p_"),userId:st.id,section:x.id,canView:true,canEdit:true};
+      await dbInsert('permissions',pr);
+      DB.permissions.push(pr);
+    }
+    await log('MARM','create','staff',st.id);
+  }
+  if(!st.pinHash){
+    st.pinSalt=uid('x_'); st.pinHash=await hashPin(pin,st.pinSalt);
+    await dbUpdate('staff', st.id, {pinSalt:st.pinSalt, pinHash:st.pinHash});
+  }
+  if(!st.active){ E.textContent='Доступ отключён администратором'; return; }
+  ME=st; PERMS=buildPerms(st); saveSession(st); $('#lPin').value='';
+  await loadAllFromServer();
+  enterApp();
+}
+
+function enterApp(){
+  $('#loginView').classList.add('hidden');
+  $('#connErrorView').classList.add('hidden');
+  $('#appView').classList.remove('hidden');
+  setUserInfo();
+  CURRENT = null;
+  buildNav(); startChat(); updFab();
+  const first = SECTIONS.find(s=>can(s.id,'view'));
+  if(first) go(first.id); else renderEmpty();
+}
+function renderEmpty(){
+  $('#nav').textContent='';
+  $('#main').innerHTML='<div class="card"><h2>Нет доступных разделов</h2><p class="mut">Администратор ещё не выдал вам права.</p></div>';
+}
+function showLogin(){
+  CH.mini=false; $('#fab').classList.add('hidden'); $('#miniChat').classList.add('hidden');
+  $('#appView').classList.add('hidden');
+  $('#connErrorView').classList.add('hidden');
+  $('#loginView').classList.remove('hidden');
+  setTimeout(()=>$('#lName').focus(),50);
+}
+function showConnError(msg){
+  $('#loginView').classList.add('hidden');
+  $('#appView').classList.add('hidden');
+  $('#connErrorView').classList.remove('hidden');
+  $('#connErr').textContent = msg || '';
+}
+
+$('#lBtn').onclick=doLogin;
+$('#lName').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+$('#lPin').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+$('#connRetry').onclick=()=>boot();
+$('#btnLogout').onclick=()=>{
+  clearSession();
+  ME=null; PERMS={}; CURRENT=null;
+  showLogin();
+};
+
+function can(section,action){
+  if(!ME) return false;
+  if(section==='chat') return true;
+  if(ME.role==='admin') return true;
+  const p = PERMS[section];
+  if(!p) return false;
+  return action==='edit' ? !!p.edit : !!(p.view||p.edit);
+}
+
+/* =========================================================
+   НАВИГАЦИЯ
+   ========================================================= */
+let CURRENT = null;
+function buildNav(){
+  const nav=$('#nav'); nav.textContent='';
+  SECTIONS.forEach(s=>{
+    if(!can(s.id,'view')) return;
+    const b=btn(s.label,'',()=>go(s.id));
+    if(CURRENT===s.id) b.classList.add('on');
+    b.dataset.sec=s.id;
+    nav.appendChild(b);
+    if(s.id==='chat'){const sp=el('span','ubadge');sp.id='ubadge';b.appendChild(sp);updUnread();}
+  });
+}
+function go(sec){
+  CURRENT=sec; renderBk(sec); updFab();
+  $$('#nav button').forEach(b=>b.classList.toggle('on', b.dataset.sec===sec));
+  const m=$('#main'); m.textContent='';
+  if(sec==='warehouse') renderWarehouse(m);
+  else if(sec==='bikes') renderBikes(m);
+  else if(sec==='electric') renderElectric(m);
+  else if(sec==='price') renderPrice(m);
+  else if(sec==='repair') renderRepair(m);
+  else if(sec==='admin') renderAdmin(m);
+  else if(sec==='chat') renderChat(m);
+}
+
+/* =========================================================
+   СКЛАД
+   ========================================================= */
+let WH = { curId:'', q:'' };
+function renderWarehouse(m){
+  m.textContent='';
+  const card=el('div','card');
+  card.appendChild(el('h2','','Склад'));
+  const row=el('div','row'); row.style.marginBottom='10px';
+  const search=el('div','search'); search.style.flex='1';
+  const inp=el('input'); inp.type='search'; inp.placeholder='Поиск товара по словам…'; inp.value=WH.q;
+  const clr=btn('×','clr',()=>{inp.value='';WH.q='';renderWarehouse($('#main'));});
+  search.appendChild(inp); search.appendChild(clr);
+  row.appendChild(search);
+  if(can('warehouse','edit')) row.appendChild(btn('+ Категория','',()=>whForm('cat',null)));
+  card.appendChild(row);
+  const tree=el('div'); card.appendChild(tree); m.appendChild(card);
+  inp.addEventListener('input',()=>{ WH.q=inp.value; loadWh(tree); });
+  clr.style.display = WH.q?'block':'none';
+  loadWh(tree);
+}
+function loadWh(tree){
+  tree.textContent='';
+  const byId={}; DB.warehouse.forEach(n=>byId[n.id]=n);
+  if(WH.q.trim()){
+    const words = WH.q.toLowerCase().replace(/ё/g,'е').split(/\s+/).filter(Boolean);
+    const res = DB.warehouse.filter(n=>{
+      if(n.type!=='item') return false;
+      const path = whPath(n,byId);
+      const h=(n.name+' '+path).toLowerCase().replace(/ё/g,'е');
+      return words.every(w=>h.includes(w));
+    });
+    const bar=el('div','row'); bar.style.marginBottom='8px';
+    bar.appendChild(btn('← Ко всем товарам','',()=>{WH.q='';WH.curId='';renderWarehouse($('#main'));}));
+    bar.appendChild(el('span','mut','Найдено: '+res.length));
+    tree.appendChild(bar);
+    if(!res.length){ tree.appendChild(el('div','empty','Ничего не найдено')); return; }
+    res.forEach(n=>tree.appendChild(whItemCard(n,byId,true)));
+    return;
+  }
+  if(WH.curId && !byId[WH.curId]) WH.curId='';
+  if(WH.curId){
+    const cur=byId[WH.curId];
+    const head=el('div','card'); head.style.background='var(--hov)';
+    const hr=el('div','row');
+    hr.appendChild(btn('← Назад','',()=>{WH.curId=cur.parentId||'';renderWarehouse($('#main'));}));
+    const nm=el('div'); nm.style.flex='1'; nm.innerHTML='<b>'+esc(cur.name)+'</b>';
+    hr.appendChild(nm);
+    if(can('warehouse','edit')){
+      hr.appendChild(btn('+ Подкатегория','',()=>whForm('cat',cur.id)));
+      hr.appendChild(btn('+ Товар','p',()=>whForm('item',cur.id)));
+      hr.appendChild(btn('✎','sm',()=>whForm('edit',cur)));
+    }
+    if(ME.role==='admin') hr.appendChild(btn('🗑','sm d',()=>whDelete(cur)));
+    head.appendChild(hr); tree.appendChild(head);
+  } else if(can('warehouse','edit')){
+    const bar=el('div','row'); bar.style.marginBottom='8px';
+    bar.appendChild(btn('+ Корневая категория','p',()=>whForm('cat',null)));
+    tree.appendChild(bar);
+  }
+  const kids = DB.warehouse.filter(n=>n.parentId === (WH.curId||null)).sort((a,b)=>{
+    if(a.type!==b.type) return a.type==='cat'?-1:1;
+    return a.name.localeCompare(b.name,'ru');
+  });
+  if(!kids.length){ tree.appendChild(el('div','empty', WH.curId?'Пусто. Добавьте товар или подкатегорию.':'Пока пусто. Создайте категорию.')); return; }
+  kids.forEach(n=>{
+    if(n.type==='cat'){
+      const c=el('div','tile');
+      c.onclick=()=>{WH.curId=n.id;renderWarehouse($('#main'));};
+      const sum = whSum(n.id, byId);
+      c.innerHTML='<div class="n">📁 '+esc(n.name)+'</div><div class="p">Всего единиц: '+sum+'</div>';
+      tree.appendChild(c);
+    } else tree.appendChild(whItemCard(n,byId,false));
+  });
+}
+function whSum(catId, byId){
+  let s=0;
+  DB.warehouse.forEach(n=>{
+    if(n.type!=='item') return;
+    let c=byId[n.parentId], g=0, ok=false;
+    if(n.parentId===catId) ok=true;
+    while(c&&g++<50){ if(c.id===catId) ok=true; c=byId[c.parentId]; }
+    if(ok) s+=n.qty||0;
+  });
+  return s;
+}
+function whItemCard(n, byId, withPath){
+  const card=el('div','card');
+  const row=el('div','row');
+  const nm=el('div'); nm.style.flex='1';
+  nm.innerHTML='<div style="font-weight:600">'+esc(n.name)+'</div>'+(withPath?('<div class="mut">'+esc(whPath(n,byId))+'</div>'):'')+(n.note?('<div class="mut">'+esc(n.note)+'</div>'):'');
+  row.appendChild(nm);
+  const qty=el('div','row'); qty.style.gap='4px';
+  if(can('warehouse','edit')){
+    qty.appendChild(btn('−','sm',()=>whSetQty(n,(n.qty||0)-1)));
+    qty.appendChild(el('b','',String(n.qty||0)));
+    qty.appendChild(btn('+','sm',()=>whSetQty(n,(n.qty||0)+1)));
+  } else qty.appendChild(el('b','',String(n.qty||0)));
+  row.appendChild(qty);
+  if(can('warehouse','edit')){
+    const a=el('div','row'); a.style.gap='4px';
+    a.appendChild(btn('✎','sm',()=>whForm('edit',n)));
+    if(ME.role==='admin') a.appendChild(btn('🗑','sm d',()=>whDelete(n)));
+    row.appendChild(a);
+  }
+  card.appendChild(row); return card;
+}
+function whPath(n,byId){
+  let p=[],c=byId[n.parentId],g=0;
+  while(c&&g++<50){p.unshift(c.name);c=byId[c.parentId];}
+  return p.join(' › ');
+}
+async function whSetQty(n,v){
+  if(v<0)v=0;
+  const upd={qty:v, updatedAt:new Date().toISOString()};
+  if(await dbUpdate('warehouse', n.id, upd)){
+    n.qty=v; n.updatedAt=upd.updatedAt;
+    await log(ME.name,'update','warehouse',n.id);
+    renderWarehouse($('#main'));
+  }
+}
+function whForm(mode,arg){
+  openModal((box,close)=>{
+    const isEdit = mode==='edit';
+    const type = isEdit?arg.type:mode;
+    box.appendChild(el('h3','',isEdit?'Редактировать':(type==='cat'?'Категория':'Товар')));
+    const i1=el('input'); i1.value=isEdit?arg.name:'';
+    box.appendChild(el('label','','Название')); box.appendChild(i1);
+    let i2=null, i3=null;
+    if(type==='item'){
+      i2=el('input'); i2.type='number'; i2.min='0'; i2.value=isEdit?(arg.qty||0):1;
+      box.appendChild(el('label','','Количество')); box.appendChild(i2);
+      i3=el('textarea'); i3.rows=2; i3.value=isEdit?(arg.note||''):'';
+      box.appendChild(el('label','','Примечание')); box.appendChild(i3);
+    }
+    const err=el('div'); err.style.color='var(--danger)'; err.style.fontSize='13px'; box.appendChild(err);
+    const act=el('div','act'); act.appendChild(btn('Отмена','',close));
+    act.appendChild(btn('Сохранить','p',async()=>{
+      const name=i1.value.trim(); if(!name){err.textContent='Введите название';return;}
+      if(isEdit){
+        const patch={name};
+        if(type==='item'){patch.qty=Math.max(0,parseInt(i2.value)||0);patch.note=i3.value.trim();}
+        patch.updatedAt=new Date().toISOString();
+        if(!await dbUpdate('warehouse', arg.id, patch)){err.textContent='Не удалось сохранить';return;}
+        Object.assign(arg,patch);
+        await log(ME.name,'update','warehouse',arg.id);
+      } else {
+        const node={id:uid("w_"),parentId:(typeof arg==='string')?arg:null,type,name,
+          qty: type==='item'?(Math.max(0,parseInt(i2.value)||0)):0,
+          note: i3?i3.value.trim():'',
+          createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+        const created=await dbInsert('warehouse', node);
+        if(!created){err.textContent='Не удалось сохранить';return;}
+        DB.warehouse.push(created);
+        await log(ME.name,'create','warehouse',node.id);
+      }
+      close(); toast('Сохранено'); renderWarehouse($('#main'));
+    }));
+    box.appendChild(act); setTimeout(()=>i1.focus(),30);
+  });
+}
+function whDelete(n){
+  openModal((box,close)=>{
+    box.appendChild(el('h3','','Удалить «'+n.name+'»?'));
+    box.appendChild(el('p','mut','Вложенные элементы тоже удалятся. Действие необратимо.'));
+    const err=el('div'); err.style.color='var(--danger)'; box.appendChild(err);
+    const act=el('div','act'); act.appendChild(btn('Отмена','',close));
+    act.appendChild(btn('Удалить','d',async()=>{
+      const toDel=new Set([n.id]);
+      let changed=true;
+      while(changed){
+        changed=false;
+        DB.warehouse.forEach(x=>{
+          if(x.parentId && toDel.has(x.parentId) && !toDel.has(x.id)){ toDel.add(x.id); changed=true; }
+        });
+      }
+      const ids=Array.from(toDel);
+      if(!await dbDeleteMany('warehouse', ids)){err.textContent='Не удалось удалить';return;}
+      DB.warehouse = DB.warehouse.filter(x=>!toDel.has(x.id));
+      for(const id of ids) await log(ME.name,'delete','warehouse',id);
+      close(); toast('Удалено'); renderWarehouse($('#main'));
+    }));
+    box.appendChild(act);
+  });
+}
+
+/* =========================================================
+   ВЕЛОСИПЕДЫ
+   ========================================================= */
+function renderBikes(m){
+  m.textContent='';
+  const card=el('div','card');
+  card.appendChild(el('h2','','Электровелосипеды'));
+  const row=el('div','row'); row.style.marginBottom='10px';
+  const inp=el('input'); inp.type='search'; inp.placeholder='Поиск по инв. № / раме / IoT'; inp.style.flex='1';
+  row.appendChild(inp);
+  if(can('bikes','edit')) row.appendChild(btn('+ Велосипед','p',()=>bikeForm(null)));
+  card.appendChild(row);
+  const list=el('div'); card.appendChild(list); m.appendChild(card);
+
+  function load(){
+    list.textContent='';
+    const term=inp.value.trim().toLowerCase();
+    let data = DB.bikes.slice().sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+    if(term) data = data.filter(b=>
+      (b.invNo||'').toLowerCase().includes(term) ||
+      (b.frameNo||'').toLowerCase().includes(term) ||
+      (b.iotNo||'').toLowerCase().includes(term)
+    );
+    if(!data.length){ list.appendChild(el('div','empty','Нет велосипедов')); return; }
+    const tbl=el('table');
+    tbl.innerHTML='<thead><tr><th>Инв. №</th><th>Рама</th><th>Марка/модель</th><th>Состояние</th><th></th></tr></thead>';
+    const tb=el('tbody');
+    data.forEach(b=>{
+      const tr=el('tr');
+      tr.innerHTML='<td>'+esc(b.invNo)+'</td><td>'+esc(b.frameNo)+'</td><td>'+esc((b.brand||'')+' '+(b.model||''))+'</td>'
+        +'<td><span class="badge '+(b.state==='ready'?'ok':b.state==='broken'?'err':b.state==='wait_parts'?'warn':'')+'">'+esc(BIKE_STATES[b.state]||b.state)+'</span></td>';
+      const td=el('td'); const a=el('div','row'); a.style.gap='4px';
+      if(can('bikes','edit')) a.appendChild(btn('✎','sm',()=>bikeForm(b)));
+      if(ME.role==='admin') a.appendChild(btn('🗑','sm d',async()=>{
+        if(!confirm('Удалить велосипед '+b.invNo+'?')) return;
+        if(!await dbDelete('bikes', b.id)) return;
+        DB.bikes = DB.bikes.filter(x=>x.id!==b.id);
+        DB.components = DB.components.filter(x=>x.bikeId!==b.id);
+        await log(ME.name,'delete','bikes',b.id);
+        toast('Удалено'); load();
+      }));
+      td.appendChild(a); tr.appendChild(td); tb.appendChild(tr);
+    });
+    tbl.appendChild(tb); list.appendChild(tbl);
+  }
+  inp.addEventListener('input',load);
+  load();
+}
+function bikeForm(b){
+  openModal((box,close)=>{
+    box.appendChild(el('h3','',b?'Редактировать велосипед':'Новый велосипед'));
+    const f={};
+    const fields=[['invNo','Инвентарный номер *'],['frameNo','Номер рамы *'],['iotNo','Номер IoT-модуля'],['brand','Марка'],['model','Модель'],['photoUrl','URL фото'],['desc','Описание'],['faults','Неисправности'],['notes','Примечание'],['handLast','Кто сдал: фамилия'],['handFirst','Кто сдал: имя'],['handPassSeries','Кто сдал: паспорт, серия'],['handPassNumber','Кто сдал: паспорт, номер']];
+    fields.forEach(([k,label])=>{
+      const i=el(['desc','faults','notes'].includes(k)?'textarea':'input');
+      if(['desc','faults','notes'].includes(k)) i.rows=2; else i.type='text';
+      i.value = b?(b[k]||''):'';
+      box.appendChild(el('label','',label)); box.appendChild(i); f[k]=i;
+    });
+    const sel=el('select');
+    Object.entries(BIKE_STATES).forEach(([k,v])=>{const o=el('option',null,v);o.value=k;sel.appendChild(o);});
+    sel.value = b?b.state:'ready';
+    box.appendChild(el('label','','Техническое состояние')); box.appendChild(sel); f.state=sel;
+    const pw=el('div','chk'), pc=el('input'); pc.type='checkbox'; pc.checked=b?b.present!==false:true;
+    pw.appendChild(pc); pw.appendChild(el('span',null,'В наличии (есть в сервисе)')); box.appendChild(pw);
+    const err=el('div'); err.style.color='var(--danger)'; err.style.fontSize='13px'; box.appendChild(err);
+    const act=el('div','act'); act.appendChild(btn('Отмена','',close));
+    act.appendChild(btn('Сохранить','p',async()=>{
+      const inv=f.invNo.value.trim(), frame=f.frameNo.value.trim();
+      if(!inv||!frame){err.textContent='Инв. номер и номер рамы обязательны';return;}
+      const dupInv = DB.bikes.find(x=>x.id!==(b?b.id:'') && x.invNo.toLowerCase()===inv.toLowerCase());
+      if(dupInv){err.textContent='Инв. номер уже существует';return;}
+      const dupFrame = DB.bikes.find(x=>x.id!==(b?b.id:'') && x.frameNo.toLowerCase()===frame.toLowerCase());
+      if(dupFrame){err.textContent='Номер рамы уже существует';return;}
+      const payload={invNo:inv,frameNo:frame,iotNo:f.iotNo.value.trim(),
+        brand:f.brand.value.trim(),model:f.model.value.trim(),photoUrl:f.photoUrl.value.trim(),
+        state:f.state.value,present:pc.checked};
+      ['desc','faults','notes','handLast','handFirst','handPassSeries','handPassNumber'].forEach(k=>payload[k]=f[k].value.trim());
+      if(b){
+        if(!await dbUpdate('bikes', b.id, payload)){err.textContent='Не удалось сохранить';return;}
+        Object.assign(b,payload);
+        await log(ME.name,'update','bikes',b.id);
+      } else {
+        const nb=Object.assign({id:uid("b_"),createdAt:new Date().toISOString()},payload);
+        const created=await dbInsert('bikes', nb);
+        if(!created){err.textContent='Не удалось сохранить';return;}
+        DB.bikes.push(created);
+        await log(ME.name,'create','bikes',nb.id);
+      }
+      close(); toast('Сохранено'); renderBikes($('#main'));
+    }));
+    box.appendChild(act);
+  });
+}
+
+/* =========================================================
+   ЭЛЕКТРО
+   ========================================================= */
+let EL_TAB='stock', EL_F='all';
+function renderElectric(m){
+  m.textContent='';
+  const tabs=el('div','tabs');
+  [['stock','Наличие'],['comp','Компоненты']].forEach(([k,v])=>tabs.appendChild(btn(v,EL_TAB===k?'on':'',()=>{EL_TAB=k;renderElectric($('#main'));})));
+  m.appendChild(tabs);
+  const body=el('div'); m.appendChild(body);
+  if(EL_TAB==='comp') return renderComponents(body);
+  const card=el('div','card'); card.appendChild(el('h2','','Наличие велосипедов'));
+  const inn=DB.bikes.filter(b=>b.present!==false), rd=inn.filter(b=>b.state==='ready').length;
+  card.appendChild(el('p','mut','В наличии: '+inn.length+' (готов: '+rd+', на ремонте: '+(inn.length-rd)+') · Нет в наличии: '+(DB.bikes.length-inn.length)+' · Всего: '+DB.bikes.length));
+  const fr=el('div','row'); fr.style.marginBottom='10px';
+  [['all','Все'],['in','В наличии'],['out','Нет в наличии']].forEach(([k,v])=>fr.appendChild(btn(v,'sm'+(EL_F===k?' p':''),()=>{EL_F=k;renderElectric($('#main'));})));
+  card.appendChild(fr);
+  if(!DB.bikes.length){card.appendChild(el('div','empty','Нет велосипедов. Добавьте их в разделе «Электровелосипеды».'));body.appendChild(card);return;}
+  const tbl=el('table');
+  tbl.innerHTML='<thead><tr><th>Инв. №</th><th>Велосипед</th><th>Статус</th><th>Описание / примечание</th><th>Кто сдал</th><th></th></tr></thead>';
+  const tb=el('tbody');
+  DB.bikes.filter(b=>EL_F==='all'||(EL_F==='in'?b.present!==false:b.present===false)).sort((a,b)=>(a.present===false?1:0)-(b.present===false?1:0)||(a.state==='ready'?0:1)-(b.state==='ready'?0:1)||(a.invNo||'').localeCompare(b.invNo||'')).forEach(b=>{
+    const ok=b.state==='ready', pr=b.present!==false, tr=el('tr');
+    tr.innerHTML='<td>'+esc(b.invNo)+'</td><td>'+esc((b.brand||'')+' '+(b.model||''))+'</td>'
+      +'<td><span class="badge '+(pr?'ok':'err')+'">'+(pr?'В наличии':'Нет в наличии')+'</span> <span class="badge '+(ok?'ok':'warn')+'">'+(ok?'Готов':'На ремонте')+'</span>'+(ok?'':'<div class="mut">'+esc(BIKE_STATES[b.state]||'')+'</div>')+'</td>'
+      +'<td>'+esc(b.desc||'')+(b.notes?'<div class="mut">Примечание: '+esc(b.notes)+'</div>':'')+(b.faults&&!ok?'<div class="mut">Неисправность: '+esc(b.faults)+'</div>':'')+'</td>'
+      +'<td>'+esc([b.handLast,b.handFirst].filter(Boolean).join(' ')||'—')+'<div class="mut">'+esc([b.handPassSeries,b.handPassNumber].filter(Boolean).join(' '))+'</div></td>';
+    if(!pr) tr.style.opacity='.6';
+    const td=el('td');
+    if(can('electric','edit')) td.appendChild(btn(pr?'Убрать из наличия':'Вернуть в наличие','sm'+(pr?' d':''),async()=>{
+      const nv=!pr;
+      if(await dbUpdate('bikes', b.id, {present:nv})){
+        b.present=nv;
+        await log(ME.name,'update','bikes',b.id);
+        toast(nv?'Добавлено в наличие':'Убрано из наличия');
+        renderElectric($('#main'));
+      }
+    }));
+    tr.appendChild(td); tb.appendChild(tr);
+  });
+  if(!tb.children.length){card.appendChild(el('div','empty','Нет велосипедов в этой категории'));body.appendChild(card);return;}
+  tbl.appendChild(tb); card.appendChild(tbl); body.appendChild(card);
+}
+function renderComponents(m){
+  m.textContent='';
+  const card=el('div','card');
+  card.appendChild(el('h2','','Электро: компоненты'));
+  const row=el('div','row'); row.style.marginBottom='10px';
+  if(can('electric','edit')) row.appendChild(btn('+ Компонент','p',()=>compForm(null)));
+  card.appendChild(row);
+  const list=el('div'); card.appendChild(list); m.appendChild(card);
+  const bikeMap={}; DB.bikes.forEach(b=>bikeMap[b.id]=b);
+  const data = DB.components.slice().sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+  if(!data.length){ list.appendChild(el('div','empty','Нет компонентов')); return; }
+  const tbl=el('table');
+  tbl.innerHTML='<thead><tr><th>Велосипед</th><th>Тип</th><th>Название</th><th>Проверка</th><th></th></tr></thead>';
+  const tb=el('tbody');
+  data.forEach(c=>{
+    const tr=el('tr');
+    const b=bikeMap[c.bikeId];
+    tr.innerHTML='<td>'+esc(b?b.invNo:'—')+'</td><td>'+esc(COMP_KINDS[c.kind]||c.kind)+'</td><td>'+esc(c.name||'')+'</td>'
+      +'<td><span class="badge '+(c.checkResult==='ok'?'ok':c.checkResult==='bad'?'err':c.checkResult==='check'?'warn':'')+'">'+esc(COMP_RESULTS[c.checkResult]||c.checkResult)+'</span></td>';
+    const td=el('td'); const a=el('div','row'); a.style.gap='4px';
+    if(can('electric','edit')) a.appendChild(btn('✎','sm',()=>compForm(c)));
+    if(ME.role==='admin') a.appendChild(btn('🗑','sm d',async()=>{
+      if(!confirm('Удалить компонент?')) return;
+      if(!await dbDelete('components', c.id)) return;
+      DB.components = DB.components.filter(x=>x.id!==c.id);
+      await log(ME.name,'delete','components',c.id);
+      toast('Удалено'); renderElectric($('#main'));
+    }));
+    td.appendChild(a); tr.appendChild(td); tb.appendChild(tr);
+  });
+  tbl.appendChild(tb); list.appendChild(tbl);
+}
+function compForm(c){
+  openModal((box,close)=>{
+    box.appendChild(el('h3','',c?'Редактировать компонент':'Новый компонент'));
+    if(!DB.bikes.length){ box.appendChild(el('p','mut','Сначала добавьте хотя бы один велосипед в разделе «Электровелосипеды».')); }
+    const f={};
+    const bsel=el('select');
+    DB.bikes.slice().sort((a,b)=>(a.invNo||'').localeCompare(b.invNo||'')).forEach(b=>{
+      const o=el('option',null,b.invNo+' · '+(b.model||''));o.value=b.id;bsel.appendChild(o);
+    });
+    if(c) bsel.value=c.bikeId;
+    box.appendChild(el('label','','Велосипед *')); box.appendChild(bsel); f.bikeId=bsel;
+    const ksel=el('select');
+    Object.entries(COMP_KINDS).forEach(([k,v])=>{const o=el('option',null,v);o.value=k;ksel.appendChild(o);});
+    if(c) ksel.value=c.kind;
+    box.appendChild(el('label','','Тип компонента')); box.appendChild(ksel); f.kind=ksel;
+    const name=el('input'); name.value=c?(c.name||''):'';
+    box.appendChild(el('label','','Название / модель')); box.appendChild(name); f.name=name;
+    const rsel=el('select');
+    Object.entries(COMP_RESULTS).forEach(([k,v])=>{const o=el('option',null,v);o.value=k;rsel.appendChild(o);});
+    if(c) rsel.value=c.checkResult;
+    box.appendChild(el('label','','Результат проверки')); box.appendChild(rsel); f.checkResult=rsel;
+    const fault=el('textarea'); fault.rows=2; fault.value=c?(c.fault||''):'';
+    box.appendChild(el('label','','Описание неисправности')); box.appendChild(fault); f.fault=fault;
+    const cmt=el('textarea'); cmt.rows=2; cmt.value=c?(c.comment||''):'';
+    box.appendChild(el('label','','Комментарий')); box.appendChild(cmt); f.comment=cmt;
+    const err=el('div'); err.style.color='var(--danger)'; box.appendChild(err);
+    const act=el('div','act'); act.appendChild(btn('Отмена','',close));
+    act.appendChild(btn('Сохранить','p',async()=>{
+      if(!f.bikeId.value){err.textContent='Выберите велосипед';return;}
+      const payload={bikeId:f.bikeId.value,kind:f.kind.value,name:f.name.value.trim(),
+        checkResult:f.checkResult.value,fault:f.fault.value.trim(),comment:f.comment.value.trim()};
+      if(c){
+        if(!await dbUpdate('components', c.id, payload)){err.textContent='Не удалось сохранить';return;}
+        Object.assign(c,payload);
+        await log(ME.name,'update','components',c.id);
+      } else {
+        const nc=Object.assign({id:uid("c_"),createdAt:new Date().toISOString()},payload);
+        const created=await dbInsert('components', nc);
+        if(!created){err.textContent='Не удалось сохранить';return;}
+        DB.components.push(created);
+        await log(ME.name,'create','components',nc.id);
+      }
+      close(); toast('Сохранено'); renderElectric($('#main'));
+    }));
+    box.appendChild(act);
+  });
+}
+
+/* =========================================================
+   ПРАЙС
+   ========================================================= */
+function renderPrice(m){
+  m.textContent='';
+  const card=el('div','card');
+  card.appendChild(el('h2','','Прайс услуг'));
+  if(ME.role==='admin'){
+    const row=el('div','row'); row.style.marginBottom='10px';
+    row.appendChild(btn('+ Услуга','p',()=>priceForm(null)));
+    card.appendChild(row);
+  } else {
+    card.appendChild(el('p','mut','Изменение прайса доступно только главному администратору.'));
+  }
+  const list=el('div'); card.appendChild(list); m.appendChild(card);
+  const data = DB.services.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||'','ru'));
+  if(!data.length){ list.appendChild(el('div','empty','Прайс пуст')); return; }
+  const tbl=el('table');
+  tbl.innerHTML='<thead><tr><th>Название</th><th>Описание</th><th>Цена</th><th>Статус</th><th></th></tr></thead>';
+  const tb=el('tbody');
+  data.forEach(s=>{
+    const tr=el('tr');
+    tr.innerHTML='<td>'+esc(s.name)+'</td><td>'+esc(s.description||'')+'</td><td>'+fmtMoney(s.price)+'</td>'
+      +'<td><span class="badge '+(s.active?'ok':'')+'">'+(s.active?'Активна':'Отключена')+'</span></td>';
+    const td=el('td'); const a=el('div','row'); a.style.gap='4px';
+    if(ME.role==='admin'){
+      a.appendChild(btn('✎','sm',()=>priceForm(s)));
+      a.appendChild(btn(s.active?'Откл.':'Вкл.','sm',async()=>{
+        const nv=!s.active;
+        if(await dbUpdate('services', s.id, {active:nv})){
+          s.active=nv;
+          await log(ME.name,'update','services',s.id);
+          toast('Обновлено'); renderPrice($('#main'));
+        }
+      }));
+      a.appendChild(btn('🗑','sm d',async()=>{
+        if(!confirm('Удалить услугу «'+s.name+'»? История ремонтов сохранится.')) return;
+        if(!await dbDelete('services', s.id)) return;
+        DB.services = DB.services.filter(x=>x.id!==s.id);
+        await log(ME.name,'delete','services',s.id);
+        toast('Удалено'); renderPrice($('#main'));
+      }));
+    }
+    td.appendChild(a); tr.appendChild(td); tb.appendChild(tr);
+  });
+  tbl.appendChild(tb); list.appendChild(tbl);
+}
+function priceForm(s){
+  openModal((box,close)=>{
+    box.appendChild(el('h3','',s?'Редактировать услугу':'Новая услуга'));
+    const n=el('input'); n.value=s?s.name:'';
+    const d=el('textarea'); d.rows=2; d.value=s?(s.description||''):'';
+    const p=el('input'); p.type='number'; p.min='0'; p.step='0.01'; p.value=s?s.price:0;
+    box.appendChild(el('label','','Название')); box.appendChild(n);
+    box.appendChild(el('label','','Описание')); box.appendChild(d);
+    box.appendChild(el('label','','Стоимость, ₽')); box.appendChild(p);
+    const err=el('div'); err.style.color='var(--danger)'; box.appendChild(err);
+    const act=el('div','act'); act.appendChild(btn('Отмена','',close));
+    act.appendChild(btn('Сохранить','p',async()=>{
+      if(!n.value.trim()){err.textContent='Введите название';return;}
+      const payload={name:n.value.trim(),description:d.value.trim(),price:Number(p.value)||0};
+      if(s){
+        if(!await dbUpdate('services', s.id, payload)){err.textContent='Не удалось сохранить';return;}
+        Object.assign(s,payload);
+        await log(ME.name,'update','services',s.id);
+      } else {
+        const ns=Object.assign({id:uid("sv_"),active:true,createdAt:new Date().toISOString()},payload);
+        const created=await dbInsert('services', ns);
+        if(!created){err.textContent='Не удалось сохранить';return;}
+        DB.services.push(created);
+        await log(ME.name,'create','services',ns.id);
+      }
+      close(); toast('Сохранено'); renderPrice($('#main'));
+    }));
+    box.appendChild(act);
+  });
+}
+
+/* =========================================================
+   РЕМОНТ
+   ========================================================= */
+function renderRepair(m){
+  m.textContent='';
+  const card=el('div','card');
+  card.appendChild(el('h2','','Ремонт: заказы'));
+  const paid=DB.repairs.filter(r=>r.done), sumAll=paid.reduce((a,r)=>a+Number(r.total),0), opn=DB.repairs.filter(r=>!r.done);
+  const sb=el('div','row'); sb.style.marginBottom='12px';
+  [['Кол-во оплат',String(paid.length)],['Общая сумма',fmtMoney(sumAll)],['Не закончено (не в итогах)',opn.length+' · '+fmtMoney(opn.reduce((a,r)=>a+Number(r.total),0))]].concat(Object.entries(PAYMENTS).map(([k,v])=>{const a=paid.filter(r=>r.payment===k);return [v+' ('+a.length+')',fmtMoney(a.reduce((x,r)=>x+Number(r.total),0))];})).forEach(([l,v])=>{
+    const t=el('div','tile'); t.style.cursor='default'; t.innerHTML='<div class="p">'+esc(l)+'</div><div class="n">'+esc(v)+'</div>'; sb.appendChild(t);
+  });
+  card.appendChild(sb);
+  const row=el('div','row'); row.style.marginBottom='10px';
+  if(can('repair','edit')) row.appendChild(btn('+ Принять работу','p',()=>repairForm(null)));
+  card.appendChild(row);
+  const list=el('div'); card.appendChild(list); m.appendChild(card);
+  const data = DB.repairs.slice().sort((a,b)=>(b.acceptedAt||'').localeCompare(a.acceptedAt||''));
+  if(!data.length){ list.appendChild(el('div','empty','Нет заказов')); return; }
+  const tbl=el('table');
+  tbl.innerHTML='<thead><tr><th>Дата</th><th>Клиент</th><th>Паспорт / компания</th><th>Статус</th><th>Итог</th><th>Оплата</th><th>Принял</th><th></th></tr></thead>';
+  const tb=el('tbody');
+  data.forEach(r=>{
+    const tr=el('tr');
+    tr.innerHTML='<td>'+esc(fmtDate(r.acceptedAt))+'</td><td>'+esc([r.clientLast,r.clientFirst,r.clientMid].filter(Boolean).join(' '))+'</td><td>'+esc([r.passSeries,r.passNumber].filter(Boolean).join(' '))+'<div class="mut">'+esc(r.company||'')+'</div></td>'
+      +'<td><span class="badge">'+esc(REPAIR_STATUSES[r.status]||r.status)+'</span>'+(r.done?' <span class="badge ok">✓ Закончен</span>':'')+'</td><td>'+fmtMoney(r.total)+'</td><td>'+esc(PAYMENTS[r.payment]||r.payment)+'</td><td>'+esc(byName(r.createdByName))+'</td>';
+    const td=el('td'); const a=el('div','row'); a.style.gap='4px';
+    if((r.photos||[]).length) a.appendChild(btn('📷 '+r.photos.length,'sm',()=>viewPhotos(r)));
+    if(can('repair','edit')) a.appendChild(btn(r.done?'↩ В работу':'✓ Закончен','sm',async()=>{
+      const nv=!r.done;
+      const patch={done:nv,doneAt:nv?new Date().toISOString():null};
+      if(await dbUpdate('repairs', r.id, patch)){
+        Object.assign(r,patch);
+        await log(ME.name,'update','repairs',r.id);
+        toast(nv?'Ремонт закончен — сумма учтена':'Возвращён в работу');
+        renderRepair($('#main'));
+      }
+    }));
+    if(can('repair','edit')) a.appendChild(btn('✎','sm',()=>repairForm(r)));
+    if(ME.role==='admin') a.appendChild(btn('🗑','sm d',async()=>{
+      if(!confirm('Удалить заказ?')) return;
+      (r.photos||[]).forEach(x=>photoDel(x.id));
+      if(!await dbDelete('repairs', r.id)) return;
+      DB.repairs = DB.repairs.filter(x=>x.id!==r.id);
+      DB.repairItems = DB.repairItems.filter(x=>x.repairId!==r.id);
+      await log(ME.name,'delete','repairs',r.id);
+      toast('Удалено'); renderRepair($('#main'));
+    }));
+    td.appendChild(a); tr.appendChild(td); tb.appendChild(tr);
+  });
+  tbl.appendChild(tb); list.appendChild(tbl);
+}
+function repairForm(r){
+  const bikes = DB.bikes.slice().sort((a,b)=>(a.invNo||'').localeCompare(b.invNo||''));
+  const services = DB.services.filter(s=>s.active).sort((a,b)=>(a.name||'').localeCompare(b.name||'','ru'));
+  let items = r ? DB.repairItems.filter(x=>x.repairId===r.id).map(x=>({serviceName:x.serviceName,qty:x.qty,unitPrice:x.unitPrice})) : [];
+
+  openModal((box,close)=>{
+    box.appendChild(el('h3','',r?'Редактировать заказ':'Принять работу'));
+    const f={};
+    [['clientLast','Фамилия'],['clientFirst','Имя'],['clientMid','Отчество'],['passSeries','Паспорт: серия'],['passNumber','Паспорт: номер'],['company','Компания, от которой работает человек']].forEach(([k,l])=>{
+      const i=el('input');i.value=r?(r[k]||''):'';box.appendChild(el('label','',l));box.appendChild(i);f[k]=i;
+    });
+    const bsel=el('select');
+    bsel.appendChild(Object.assign(el('option',null,'— без привязки —'),{value:''}));
+    bikes.forEach(b=>{const o=el('option',null,b.invNo+' · '+(b.model||''));o.value=b.id;bsel.appendChild(o);});
+    if(r&&r.bikeId) bsel.value=r.bikeId;
+    box.appendChild(el('label','','Велосипед из реестра')); box.appendChild(bsel); f.bikeId=bsel;
+    const fault=el('textarea'); fault.rows=2; fault.value=r?(r.fault||''):'';
+    box.appendChild(el('label','','Неисправность')); box.appendChild(fault); f.fault=fault;
+    const work=el('textarea'); work.rows=2; work.value=r?(r.workDone||''):'';
+    box.appendChild(el('label','','Выполненные работы')); box.appendChild(work); f.workDone=work;
+
+    box.appendChild(el('h3','','Фото велосипеда при приёме'));
+    const pendB={}, ph=r&&r.photos?r.photos.map(x=>({id:x.id,note:x.note||''})):[];
+    const phList=el('div'), phIn=el('input'); phIn.type='file'; phIn.accept='image/*'; phIn.multiple=true; phIn.className='hidden';
+    function drawPh(){ phList.textContent='';
+      ph.forEach((x,i)=>{const row=el('div','row');row.style.margin='6px 0';
+        const im=el('img');im.style.cssText='width:72px;height:72px;object-fit:cover;border-radius:8px';photoUrl(x.id).then(u=>{if(u)im.src=u;});
+        const n=el('input');n.placeholder='Состояние, царапины…';n.value=x.note;n.style.flex='1';n.oninput=()=>{x.note=n.value;};
+        row.appendChild(im);row.appendChild(n);row.appendChild(btn('×','sm d',()=>{ph.splice(i,1);delete pendB[x.id];drawPh();}));phList.appendChild(row);}); }
+    phIn.onchange=async()=>{for(const f of phIn.files){const b=await compress(f),id=uid('ph_');pendB[id]=b;PU[id]=URL.createObjectURL(b);ph.push({id,note:''});}phIn.value='';drawPh();};
+    box.appendChild(phList); const phRow=el('div','row'); phRow.appendChild(btn('📷 Добавить фото','',()=>phIn.click())); phRow.appendChild(phIn); box.appendChild(phRow); drawPh();
+
+    box.appendChild(el('h3','','Услуги из прайса'));
+    const itemsBox=el('div'); box.appendChild(itemsBox);
+    function renderItems(){
+      itemsBox.textContent='';
+      if(!items.length){ itemsBox.appendChild(el('div','mut','Услуги не выбраны')); }
+      items.forEach((it,idx)=>{
+        const row=el('div','row'); row.style.margin='4px 0';
+        const nm=el('div',null,it.serviceName); nm.style.flex='1';
+        const qty=el('input'); qty.type='number'; qty.min='1'; qty.value=it.qty; qty.style.width='80px';
+        qty.onchange=()=>{it.qty=Math.max(1,Number(qty.value)||1);recalc();};
+        const price=el('span',null,fmtMoney(it.unitPrice)); price.style.width='100px';
+        const del=btn('×','sm d',()=>{items.splice(idx,1);renderItems();recalc();});
+        row.appendChild(nm);row.appendChild(qty);row.appendChild(price);row.appendChild(del);
+        itemsBox.appendChild(row);
+      });
+    }
+    renderItems();
+    const addRow=el('div','row'); addRow.style.marginTop='6px';
+    const ssel=el('select');
+    ssel.appendChild(Object.assign(el('option',null,'— выбрать услугу —'),{value:''}));
+    services.forEach(s=>{const o=el('option',null,s.name+' · '+fmtMoney(s.price));o.value=s.id;ssel.appendChild(o);});
+    addRow.appendChild(ssel);
+    addRow.appendChild(btn('+ Добавить','',()=>{
+      const id=ssel.value; if(!id) return;
+      const s=services.find(x=>x.id===id); if(!s) return;
+      items.push({serviceName:s.name,qty:1,unitPrice:Number(s.price)});
+      renderItems(); recalc();
+    }));
+    box.appendChild(addRow);
+
+    const totalBox=el('div'); totalBox.style.margin='10px 0'; box.appendChild(totalBox);
+    const manualChk=el('input'); manualChk.type='checkbox'; manualChk.checked=r?r.manualTotal:false;
+    const manualWrap=el('div','chk'); manualWrap.appendChild(manualChk); manualWrap.appendChild(el('span',null,'Индивидуальная итоговая стоимость (вручную)'));
+    box.appendChild(manualWrap);
+    const manualInp=el('input'); manualInp.type='number'; manualInp.min='0'; manualInp.step='0.01';
+    manualInp.value = r?r.total:0; manualInp.disabled = !manualChk.checked;
+    box.appendChild(manualInp);
+
+    function calcAuto(){ return items.reduce((s,i)=>s+Number(i.unitPrice)*Number(i.qty),0); }
+    function recalc(){
+      if(manualChk.checked) totalBox.innerHTML='<b>Итог (вручную): '+fmtMoney(Number(manualInp.value)||0)+'</b>';
+      else totalBox.innerHTML='<b>Итог по прайсу: '+fmtMoney(calcAuto())+'</b>';
+    }
+    manualChk.onchange=()=>{ manualInp.disabled=!manualChk.checked; if(!manualChk.checked) manualInp.value=calcAuto(); recalc(); };
+    manualInp.oninput=recalc;
+    recalc();
+
+    const psel=el('select');
+    Object.entries(PAYMENTS).forEach(([k,v])=>{const o=el('option',null,v);o.value=k;psel.appendChild(o);});
+    if(r) psel.value=r.payment;
+    box.appendChild(el('label','','Способ оплаты')); box.appendChild(psel); f.payment=psel;
+
+    const stsel=el('select');
+    Object.entries(REPAIR_STATUSES).forEach(([k,v])=>{const o=el('option',null,v);o.value=k;stsel.appendChild(o);});
+    if(r) stsel.value=r.status;
+    box.appendChild(el('label','','Статус')); box.appendChild(stsel); f.status=stsel;
+    const dw=el('div','chk'), dc=el('input'); dc.type='checkbox'; dc.checked=!!(r&&r.done);
+    dw.appendChild(dc); dw.appendChild(el('span',null,'Ремонт закончен (сумма идёт в итоги)')); box.appendChild(dw);
+
+    const err=el('div'); err.style.color='var(--danger)'; box.appendChild(err);
+    const act=el('div','act'); act.appendChild(btn('Отмена','',close));
+    act.appendChild(btn('Сохранить','p',async()=>{
+      if(!f.clientLast.value.trim()||!f.clientFirst.value.trim()){err.textContent='Фамилия и имя обязательны';return;}
+      const total = manualChk.checked ? (Number(manualInp.value)||0) : calcAuto();
+      const payload={
+        clientLast:f.clientLast.value.trim(),clientFirst:f.clientFirst.value.trim(),clientMid:f.clientMid.value.trim(),passSeries:f.passSeries.value.trim(),passNumber:f.passNumber.value.trim(),company:f.company.value.trim(),
+        bikeId:f.bikeId.value||null,fault:f.fault.value.trim(),workDone:f.workDone.value.trim(),
+        total,manualTotal:manualChk.checked,payment:f.payment.value,status:f.status.value,done:dc.checked,doneAt:dc.checked?((r&&r.doneAt)||new Date().toISOString()):null,photos:ph.map(x=>({id:x.id,note:x.note}))
+      };
+      for(const x of ph){ if(pendB[x.id]) await photoPut(x.id,pendB[x.id]); }
+      if(r) (r.photos||[]).forEach(x=>{if(!ph.some(y=>y.id===x.id)) photoDel(x.id);});
+      let repId;
+      if(r){
+        if(!await dbUpdate('repairs', r.id, payload)){err.textContent='Не удалось сохранить';return;}
+        Object.assign(r,payload); repId=r.id;
+        await supabaseClient.from('repair_items').delete().eq('repairId', r.id);
+        DB.repairItems = DB.repairItems.filter(x=>x.repairId!==r.id);
+        await log(ME.name,'update','repairs',r.id);
+      } else {
+        const nr=Object.assign({id:uid("r_"),acceptedAt:new Date().toISOString(),createdByName:ME.name},payload);
+        const created=await dbInsert('repairs', nr);
+        if(!created){err.textContent='Не удалось сохранить';return;}
+        DB.repairs.push(created); repId=nr.id;
+        await log(ME.name,'create','repairs',nr.id);
+      }
+      for(const it of items){
+        const ri={id:uid("ri_"),repairId:repId,serviceName:it.serviceName,qty:it.qty,unitPrice:it.unitPrice};
+        await dbInsert('repair_items', ri);
+        DB.repairItems.push(ri);
+      }
+      close(); toast('Сохранено'); renderRepair($('#main'));
+    }));
+    box.appendChild(act);
+  });
+}
+
+/* =========================================================
+   АДМИН
+   ========================================================= */
+function renderAdmin(m){
+  m.textContent='';
+  if(ME.role!=='admin'){
+    m.innerHTML='<div class="card"><h2>Доступ только для MARM</h2></div>'; return;
+  }
+  const tabs=el('div','tabs');
+  const tabUsers=btn('Сотрудники','on',()=>showTab('users'));
+  const tabLog=btn('Журнал действий','',()=>showTab('log'));
+  const tabData=btn('Данные','',()=>showTab('data'));
+  tabs.appendChild(tabUsers); tabs.appendChild(tabLog); tabs.appendChild(tabData);
+  m.appendChild(tabs);
+  const body=el('div'); m.appendChild(body);
+  function showTab(t){
+    [tabUsers,tabLog,tabData].forEach(b=>b.classList.remove('on'));
+    ({users:tabUsers,log:tabLog,data:tabData})[t].classList.add('on');
+    body.textContent='';
+    if(t==='users') renderUsersTab(body);
+    else if(t==='log') renderLogTab(body);
+    else renderDataTab(body);
+  }
+  showTab('users');
+}
+function renderUsersTab(body){
+  const card=el('div','card');
+  card.appendChild(el('h2','','Сотрудники'));
+  const row=el('div','row'); row.style.marginBottom='10px';
+  row.appendChild(btn('+ Добавить сотрудника','p',()=>staffForm(null)));
+  card.appendChild(row);
+  const tbl=el('table');
+  tbl.innerHTML='<thead><tr><th>Имя</th><th>Роль</th><th>Активен</th><th></th></tr></thead>';
+  const tb=el('tbody');
+  DB.staff.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||'','ru')).forEach(p=>{
+    const tr=el('tr');
+    tr.innerHTML='<td>'+(p.prefix?'<span class="badge">'+esc(p.prefix)+'</span> ':'')+esc(p.name)+(p.pinHash?'':' <span class="badge err">нет PIN</span>')+'</td>'
+      +'<td><span class="badge '+(p.role==='admin'?'ok':'')+'">'+(p.role==='admin'?'Главный админ':'Сотрудник')+'</span></td>'
+      +'<td><span class="badge '+(p.active?'ok':'err')+'">'+(p.active?'Да':'Нет')+'</span></td>';
+    const td=el('td'); const a=el('div','row'); a.style.gap='4px';
+    a.appendChild(btn('Права','sm',()=>permsForm(p)));
+    a.appendChild(btn('✎','sm',()=>staffForm(p)));
+    if(p.name!=='MARM'){
+      a.appendChild(btn(p.active?'Откл.':'Вкл.','sm',async()=>{
+        const nv=!p.active;
+        if(await dbUpdate('staff', p.id, {active:nv})){
+          p.active=nv;
+          await log(ME.name,'update','staff',p.id);
+          toast('Обновлено'); renderAdmin($('#main'));
+        }
+      }));
+      a.appendChild(btn('🗑','sm d',async()=>{
+        if(!confirm('Удалить сотрудника '+p.name+'?')) return;
+        if(!await dbDelete('staff', p.id)) return;
+        await supabaseClient.from('permissions').delete().eq('userId', p.id);
+        DB.staff = DB.staff.filter(x=>x.id!==p.id);
+        DB.permissions = DB.permissions.filter(x=>x.userId!==p.id);
+        await log(ME.name,'delete','staff',p.id);
+        toast('Удалено'); renderAdmin($('#main'));
+      }));
+    }
+    td.appendChild(a); tr.appendChild(td); tb.appendChild(tr);
+  });
+  tbl.appendChild(tb); card.appendChild(tbl);
+  body.appendChild(card);
+}
+function staffForm(p){
+  openModal((box,close)=>{
+    box.appendChild(el('h3','',p?'Изменить сотрудника':'Новый сотрудник'));
+    const n=el('input'); n.value=p?p.name:'';
+    box.appendChild(el('label','','Имя для входа')); box.appendChild(n);
+    const rsel=el('select');
+    [['employee','Сотрудник'],['admin','Главный админ']].forEach(([k,v])=>{const o=el('option',null,v);o.value=k;rsel.appendChild(o);});
+    rsel.value = p?p.role:'employee';
+    if(p && p.name==='MARM'){ rsel.disabled=true; }
+    const pf=el('input'); pf.value=p?(p.prefix||''):''; pf.maxLength=40; pf.placeholder='Например: Механик';
+    box.appendChild(el('label','','Префикс (должность)')); box.appendChild(pf);
+    const pn=el('input'); pn.type='text'; pn.inputMode='numeric'; pn.maxLength=8; pn.autocomplete='off';
+    pn.placeholder=p?'Оставьте пустым, чтобы не менять':'4–8 цифр';
+    box.appendChild(el('label','','PIN-код для входа')); box.appendChild(pn);
+    box.appendChild(el('label','','Роль')); box.appendChild(rsel);
+    const err=el('div'); err.style.color='var(--danger)'; box.appendChild(err);
+    const act=el('div','act'); act.appendChild(btn('Отмена','',close));
+    act.appendChild(btn('Сохранить','p',async()=>{
+      const name=n.value.trim(); if(!name){err.textContent='Введите имя';return;}
+      const dup = DB.staff.find(x=>x.id!==(p?p.id:'') && x.name.toLowerCase()===name.toLowerCase());
+      if(dup){err.textContent='Такое имя уже занято';return;}
+      const pin=pn.value.trim(); let pr={};
+      if(pin&&!/^\d{4,8}$/.test(pin)){err.textContent='PIN-код: 4–8 цифр';return;}
+      if(!p&&!pin){err.textContent='Задайте PIN-код сотруднику';return;}
+      if(pin){const salt=uid('x_'); pr={pinSalt:salt,pinHash:await hashPin(pin,salt)};}
+      if(p){
+        const patch=Object.assign({name,prefix:pf.value.trim()},pr);
+        if(!rsel.disabled) patch.role=rsel.value;
+        if(!await dbUpdate('staff', p.id, patch)){err.textContent='Не удалось сохранить';return;}
+        Object.assign(p,patch);
+        await log(ME.name,'update','staff',p.id);
+      } else {
+        const ns=Object.assign({id:uid("s_"),name,prefix:pf.value.trim(),role:rsel.value,active:true,createdAt:new Date().toISOString()},pr);
+        const created=await dbInsert('staff', ns);
+        if(!created){err.textContent='Не удалось сохранить';return;}
+        DB.staff.push(created);
+        await log(ME.name,'create','staff',ns.id);
+      }
+      close(); toast('Сохранено'); renderAdmin($('#main'));
+    }));
+    box.appendChild(act); setTimeout(()=>n.focus(),30);
+  });
+}
+function permsForm(p){
+  const map={}; DB.permissions.filter(x=>x.userId===p.id).forEach(r=>map[r.section]=r);
+  openModal((box,close)=>{
+    box.appendChild(el('h3','','Права: '+p.name));
+    if(p.role==='admin') box.appendChild(el('p','mut','Главный администратор имеет полный доступ ко всем разделам.'));
+    const items={};
+    SECTIONS.forEach(s=>{
+      if(s.id==='chat') return;
+      const row=el('div','chk');
+      const v=el('input'); v.type='checkbox'; v.checked = p.role==='admin' ? true : !!(map[s.id]&&(map[s.id].canView||map[s.id].canEdit));
+      const e=el('input'); e.type='checkbox'; e.checked = p.role==='admin' ? true : !!(map[s.id]&&map[s.id].canEdit);
+      e.onchange=()=>{ if(e.checked) v.checked=true; };
+      const lab1=el('label'); lab1.style.margin='0'; lab1.appendChild(v); lab1.appendChild(document.createTextNode(' просмотр'));
+      const lab2=el('label'); lab2.style.margin='0 0 0 12px'; lab2.appendChild(e); lab2.appendChild(document.createTextNode(' редактирование'));
+      row.appendChild(el('span',null,s.label+':'));
+      row.appendChild(lab1); row.appendChild(lab2);
+      if(s.id==='price'){ e.disabled=true; e.checked=false; lab2.title='Изменение прайса только администратор'; }
+      box.appendChild(row);
+      items[s.id]={view:v,edit:e};
+    });
+    const err=el('div'); err.style.color='var(--danger)'; box.appendChild(err);
+    const act=el('div','act'); act.appendChild(btn('Отмена','',close));
+    act.appendChild(btn('Сохранить','p',async()=>{
+      if(p.role==='admin'){ close(); return; }
+      await supabaseClient.from('permissions').delete().eq('userId', p.id);
+      DB.permissions = DB.permissions.filter(x=>x.userId!==p.id);
+      for(const s of SECTIONS){
+        const it=items[s.id]; if(!it) continue;
+        let v=it.view.checked||it.edit.checked;
+        let e=it.edit.checked&&s.id!=='price';
+        if(v||e){
+          const pr={id:uid("p_"),userId:p.id,section:s.id,canView:v,canEdit:e};
+          await dbInsert('permissions', pr);
+          DB.permissions.push(pr);
+        }
+      }
+      await log(ME.name,'update','permissions',p.id);
+      close(); toast('Права сохранены'); renderAdmin($('#main'));
+    }));
+    box.appendChild(act);
+  });
+}
+function renderLogTab(body){
+  const card=el('div','card');
+  card.appendChild(el('h2','','Журнал действий'));
+  if(!DB.audit.length){ card.appendChild(el('div','empty','Журнал пуст')); body.appendChild(card); return; }
+  const tbl=el('table');
+  tbl.innerHTML='<thead><tr><th>Когда</th><th>Кто</th><th>Действие</th><th>Объект</th></tr></thead>';
+  const tb=el('tbody');
+  DB.audit.slice(0,300).forEach(a=>{
+    const tr=el('tr');
+    tr.innerHTML='<td>'+esc(fmtDate(a.at))+'</td><td>'+esc(a.userName||'—')+'</td>'
+      +'<td>'+esc(a.action)+'</td><td>'+esc(a.entity)+'</td>';
+    tb.appendChild(tr);
+  });
+  tbl.appendChild(tb); card.appendChild(tbl); body.appendChild(card);
+}
+function renderDataTab(body){
+  const card=el('div','card');
+  card.appendChild(el('h2','','Данные'));
+  card.appendChild(el('div','note','Данные хранятся в облаке Supabase и доступны всем сотрудникам. Чат и фото — в IndexedDB этого устройства (не входят в облако). Экспорт ниже — полная резервная копия: и облачные данные, и чат с фото.'));
+  const row=el('div','row');
+  row.appendChild(btn('📥 Скачать резервную копию (JSON)','p',exportDB));
+  card.appendChild(row);
+  const info=el('div'); info.style.marginTop='14px'; info.className='mut';
+  info.innerHTML='Сотрудников: '+DB.staff.length+'<br>'
+    +'Категорий и товаров: '+DB.warehouse.length+'<br>'
+    +'Велосипедов: '+DB.bikes.length+'<br>'
+    +'Компонентов: '+DB.components.length+'<br>'
+    +'Услуг в прайсе: '+DB.services.length+'<br>'
+    +'Ремонтов: '+DB.repairs.length+'<br>'
+    +'Записей в журнале: '+DB.audit.length;
+  card.appendChild(info);
+  body.appendChild(card);
+}
+async function exportDB(){
+  try{
+    const blob = new Blob([JSON.stringify(Object.assign({},DB,{__chat:await chatDump(),__photos:await photoDump(DB.repairs.flatMap(r=>(r.photos||[]).map(x=>x.id)))}))],{type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'ecovelo-backup-'+new Date().toISOString().slice(0,10)+'.json';
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    toast('Резервная копия скачана');
+  }catch(e){ toast('Ошибка экспорта: '+e.message); }
+}
+
+/* =========================================================
+   ТЕМА, ПРЕФИКСЫ, РЕЗЕРВНЫЕ КОПИИ РАЗДЕЛОВ
+   ========================================================= */
+function applyTheme(t){document.documentElement.dataset.theme=t;const b=$('#btnTheme');if(b)b.textContent=t==='dark'?'☀️':'🌙';}
+$('#btnTheme').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem('ecovelo_theme',t)}catch(e){}applyTheme(t);};
+function lbl(x){return (x.prefix?x.prefix+' ':'')+x.name;}
+function byName(n){const x=DB.staff.find(y=>y.name===n);return x?lbl(x):(n||'—');}
+function setUserInfo(){$('#userInfo').textContent=lbl(ME)+' · '+(ME.role==='admin'?'главный администратор':'сотрудник');}
+$('#btnPfx').onclick=()=>openModal((box,close)=>{
+  box.appendChild(el('h3','','Мой префикс (должность)'));
+  const i=el('input'); i.value=ME.prefix||''; i.maxLength=40; i.placeholder='Например: Механик'; box.appendChild(i);
+  const act=el('div','act'); act.appendChild(btn('Отмена','',close));
+  act.appendChild(btn('Сохранить','p',async()=>{
+    const v=i.value.trim();
+    if(!await dbUpdate('staff', ME.id, {prefix:v})) return;
+    ME.prefix=v;
+    await log(ME.name,'update','staff',ME.id);
+    setUserInfo(); close(); toast('Сохранено');
+  }));
+  box.appendChild(act); setTimeout(()=>i.focus(),30);
+});
+$('#btnPin').onclick=()=>openModal((box,close)=>{
+  box.appendChild(el('h3','','Сменить PIN-код'));
+  const a=el('input'),b=el('input'),c=el('input'); [a,b,c].forEach(i=>{i.type='password';i.inputMode='numeric';i.maxLength=8;i.autocomplete='off';});
+  box.appendChild(el('label','','Текущий PIN')); box.appendChild(a);
+  box.appendChild(el('label','','Новый PIN (4–8 цифр)')); box.appendChild(b);
+  box.appendChild(el('label','','Повторите новый PIN')); box.appendChild(c);
+  const err=el('div'); err.style.color='var(--danger)'; box.appendChild(err);
+  const act=el('div','act'); act.appendChild(btn('Отмена','',close));
+  act.appendChild(btn('Сохранить','p',async()=>{
+    if(!ME.pinHash||(await hashPin(a.value.trim(),ME.pinSalt))!==ME.pinHash){err.textContent='Текущий PIN неверный';return;}
+    const n=b.value.trim(); if(!/^\d{4,8}$/.test(n)){err.textContent='PIN-код: 4–8 цифр';return;}
+    if(n!==c.value.trim()){err.textContent='PIN-коды не совпадают';return;}
+    const salt=uid('x_'), hash=await hashPin(n,salt);
+    if(!await dbUpdate('staff', ME.id, {pinSalt:salt, pinHash:hash})){err.textContent='Не удалось сохранить';return;}
+    ME.pinSalt=salt; ME.pinHash=hash;
+    await log(ME.name,'update','staff',ME.id);
+    close(); toast('PIN-код изменён');
+  }));
+  box.appendChild(act); setTimeout(()=>a.focus(),30);
+});
+const BK={warehouse:['warehouse'],bikes:['bikes','components'],electric:['bikes','components'],price:['services'],repair:['repairs','repairItems'],admin:['staff','permissions','audit'],chat:[]};
+function renderBk(sec){
+  const b=$('#bkBar'); b.textContent='';
+  b.appendChild(btn('💾 Резервная копия','sm',()=>pageExport(sec)));
+}
+async function pageExport(sec){
+  const d={}; BK[sec].forEach(k=>d[k]=DB[k]);
+  const o={ecovelo:1,scope:sec,at:new Date().toISOString(),data:d};
+  if(sec==='chat') o.chat=await chatDump();
+  if(sec==='repair') o.photos=await photoDump(DB.repairs.flatMap(r=>(r.photos||[]).map(x=>x.id)));
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(o)],{type:'application/json'}));
+  a.download='ecovelo-'+sec+'-'+new Date().toISOString().slice(0,10)+'.json'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000); toast('Копия скачана');
+}
+
+/* =========================================================
+   ЧАТ (IndexedDB)
+   ========================================================= */
+let CH={msgs:[],known:new Set(),urls:[],lim:300,init:false,on:false,box:null,bc:null};
+let _idb;
+function idb(){return _idb||(_idb=new Promise((ok,no)=>{const q=indexedDB.open('ecovelo_chat_v1',2);
+  q.onupgradeneeded=()=>{const d=q.result;if(!d.objectStoreNames.contains('msgs'))d.createObjectStore('msgs',{keyPath:'id'});if(!d.objectStoreNames.contains('files'))d.createObjectStore('files');if(!d.objectStoreNames.contains('photos'))d.createObjectStore('photos');};
+  q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error);}));}
+function tx(st,mode,fn){return idb().then(d=>new Promise((ok,no)=>{const t=d.transaction(st,mode);const r=fn(t);t.oncomplete=()=>ok(r&&r.result);t.onerror=()=>no(t.error);}));}
+const chatAll=()=>tx('msgs','readonly',t=>t.objectStore('msgs').getAll()).then(a=>(a||[]).sort((x,y)=>x.at<y.at?-1:1));
+const chatFile=id=>tx('files','readonly',t=>t.objectStore('files').get(id));
+const chatPut=(m,f)=>tx(['msgs','files'],'readwrite',t=>{t.objectStore('msgs').put(m);if(f)t.objectStore('files').put(f,m.id);});
+const chatDel=id=>tx(['msgs','files'],'readwrite',t=>{t.objectStore('msgs').delete(id);t.objectStore('files').delete(id);});
+async function chatDump(){
+  const ms=await chatAll();
+  for(const m of ms){ if(m.file){ const b=await chatFile(m.id); if(b) m.data=await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b);}); } }
+  return ms;
+}
+async function chatLoad(ms){
+  const have=new Set((await chatAll()).map(m=>m.id));
+  for(const m of ms){ if(have.has(m.id)) continue; let f=null; if(m.data){ f=await (await fetch(m.data)).blob(); delete m.data; } await chatPut(m,f); }
+  signalChat();
+}
+function prefs(){try{return JSON.parse(localStorage.getItem('ecovelo_chat_prefs')||'{}')}catch(e){return {}}}
+function setPref(k,v){const p=prefs();p[k]=v;try{localStorage.setItem('ecovelo_chat_prefs',JSON.stringify(p))}catch(e){}}
+function rdMap(){try{return JSON.parse(localStorage.getItem('ecovelo_chat_read')||'{}')}catch(e){return {}}}
+function markRead(){const m=rdMap();m[ME.id]=new Date().toISOString();try{localStorage.setItem('ecovelo_chat_read',JSON.stringify(m))}catch(e){}updUnread();}
+function updUnread(){
+  const last=ME?(rdMap()[ME.id]||''):'';
+  const n=ME?CH.msgs.filter(m=>m.uid!==ME.id&&m.at>last).length:0;
+  const b=$('#ubadge'); if(b){b.textContent=n>99?'99+':n;b.style.display=n?'inline-block':'none';}
+  const fb=$('#fbadge'); if(fb){fb.textContent=n>99?'99+':n;fb.style.display=n?'inline-block':'none';}
+  document.title=(n?'('+n+') ':'')+'Эковело CRM Екатеринбург';
+}
+let AC;
+function ding(){
+  if(prefs().snd===false) return;
+  try{AC=AC||new (window.AudioContext||window.webkitAudioContext)(); const t=AC.currentTime;
+    [[740,0],[554,.17]].forEach(([fr,d])=>{const o=AC.createOscillator(),g=AC.createGain();o.type='square';o.frequency.value=fr;
+      g.gain.setValueAtTime(.0001,t+d);g.gain.exponentialRampToValueAtTime(.12,t+d+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d+.15);
+      o.connect(g);g.connect(AC.destination);o.start(t+d);o.stop(t+d+.17);});
+  }catch(e){}
+}
+const EMO=['😊','😉','😀','😁','😎','😍','😘','😜','😛','😢','😭','😡','😠','😮','😱','😴','🙄','😇','😈','🤔','😐','😏','😳','🤗','👍','👎','👋','🙏','💋','❤️','💔','🌹','🎉','🎁','☕','🍺','🔥','⭐','💡','🚲'];
+const SMI={':-)':'😊',':)':'😊',';-)':'😉',';)':'😉',':-D':'😀',':D':'😀',':-(':'😢',':(':'😢',":'(":'😭',':-P':'😛',':P':'😛','8-)':'😎',':-O':'😮',':O':'😮','>:(':'😡',':-*':'💋',':*':'💋','<3':'❤️','O:-)':'😇',']:->':'😈'};
+function smi(t){return t.replace(/O:-\)|\]:->|:'\(|>:\(|<3|8-\)|[:;]-?[)(DPO*]/g,m=>SMI[m]||m);}
+function startChat(){
+  if(!CH.on){CH.on=true;
+    try{CH.bc=new BroadcastChannel('ecovelo_chat');CH.bc.onmessage=()=>syncChat();}catch(e){}
+    addEventListener('storage',e=>{if(e.key==='ecovelo_chat_ping')syncChat();else if(e.key==='ecovelo_chat_read'&&(CURRENT==='chat'||CH.mini))drawChat();});
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden&&CURRENT==='chat')syncChat();});
+    try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist();}catch(e){}
+  }
+  const m=rdMap(); if(!m[ME.id]){m[ME.id]=new Date().toISOString();try{localStorage.setItem('ecovelo_chat_read',JSON.stringify(m))}catch(e){}}
+  CH.init=false; CH.known=new Set(); syncChat();
+}
+function signalChat(){try{CH.bc&&CH.bc.postMessage(1);localStorage.setItem('ecovelo_chat_ping',String(Date.now()));}catch(e){} return syncChat();}
+async function syncChat(){
+  if(!ME) return;
+  let ms; try{ms=await chatAll();}catch(e){return;}
+  const fresh=CH.init?ms.filter(m=>!CH.known.has(m.id)&&m.uid!==ME.id):[];
+  CH.msgs=ms; CH.known=new Set(ms.map(m=>m.id)); CH.init=true;
+  const looking=(CURRENT==='chat'||CH.mini)&&!document.hidden;
+  if(looking) markRead(); else updUnread();
+  if(CURRENT==='chat'||CH.mini) drawChat();
+  const mt=fresh.filter(x=>(x.mentions||[]).includes(ME.id));
+  if(mt.length){ dingMention(); const x=mt[mt.length-1], nm=lbl({name:x.name,prefix:x.prefix});
+    toast('🔔 '+nm+' упомянул(а) вас: '+(x.text||'').slice(0,80)); }
+  if(fresh.length){
+    if(!mt.length) ding();
+    const m=fresh[fresh.length-1], txt=(m.text||('📎 '+(m.file?m.file.name:'')));
+    if(!looking&&!mt.length){ toast('💬 '+lbl({name:m.name,prefix:m.prefix})+': '+txt.slice(0,80)); }
+  }
+}
+const photoPut=(id,b)=>tx('photos','readwrite',t=>t.objectStore('photos').put(b,id));
+const photoGet=id=>tx('photos','readonly',t=>t.objectStore('photos').get(id));
+const photoDel=id=>tx('photos','readwrite',t=>t.objectStore('photos').delete(id));
+const PU={};
+function photoUrl(id){ if(PU[id]) return Promise.resolve(PU[id]); return photoGet(id).then(b=>b?(PU[id]=URL.createObjectURL(b)):null); }
+function compress(file){return new Promise(ok=>{const u=URL.createObjectURL(file),i=new Image();
+  i.onload=()=>{const k=Math.min(1,1280/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=Math.round(i.width*k);c.height=Math.round(i.height*k);
+    c.getContext('2d').drawImage(i,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>ok(b||file),'image/jpeg',.8);};
+  i.onerror=()=>{URL.revokeObjectURL(u);ok(file);}; i.src=u;});}
+const b2d=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b);});
+async function photoDump(ids){const o={};for(const id of ids){const b=await photoGet(id);if(b)o[id]=await b2d(b);}return o;}
+async function photoLoad(o){for(const id of Object.keys(o||{})){if(await photoGet(id))continue;await photoPut(id,await (await fetch(o[id])).blob());}}
+function viewPhotos(r){openModal((box,close)=>{
+  box.appendChild(el('h3','','Фото при приёме: '+[r.clientLast,r.clientFirst].filter(Boolean).join(' ')));
+  (r.photos||[]).forEach(x=>{const d=el('div');d.style.margin='10px 0';const i=el('img');i.style.cssText='max-width:100%;border-radius:8px;display:block';
+    photoUrl(x.id).then(u=>{if(u)i.src=u;});d.appendChild(i);if(x.note)d.appendChild(el('div','mut',x.note));box.appendChild(d);});
+  const a=el('div','act');a.appendChild(btn('Закрыть','',close));box.appendChild(a);});}
+function replySnip(m){return (m.text||(m.file?'📎 '+m.file.name:(m.refs&&m.refs.length?'🔗 вложение':''))).slice(0,100);}
+function mentionIds(t){const l=(t||'').toLowerCase();return DB.staff.filter(x=>x.active!==false&&l.includes('@'+x.name.toLowerCase())).map(x=>x.id);}
+function hl(h){const ns=DB.staff.map(x=>esc(x.name)).sort((a,b)=>b.length-a.length).map(n=>n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
+  if(!ns.length) return h; return h.replace(new RegExp('@('+ns.join('|')+')','gi'),'<span class="mention">$&</span>');}
+function pickStaff(done){openModal((box,close)=>{
+  box.appendChild(el('h3','','Упомянуть сотрудника'));
+  DB.staff.filter(x=>x.active!==false&&x.id!==ME.id).forEach(x=>{const t=el('div','tile');t.style.marginBottom='6px';t.textContent=lbl(x);t.onclick=()=>{done(x.name);close();};box.appendChild(t);});
+  const a=el('div','act');a.appendChild(btn('Отмена','',close));box.appendChild(a);});}
+function dingMention(){
+  if(prefs().snd===false) return;
+  try{AC=AC||new (window.AudioContext||window.webkitAudioContext)(); const t=AC.currentTime;
+    [[660,0],[880,.13],[1175,.26]].forEach(([fr,d])=>{const o=AC.createOscillator(),g=AC.createGain();o.type='square';o.frequency.value=fr;
+      g.gain.setValueAtTime(.0001,t+d);g.gain.exponentialRampToValueAtTime(.14,t+d+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d+.12);
+      o.connect(g);g.connect(AC.destination);o.start(t+d);o.stop(t+d+.14);});}catch(e){}
+}
+const REFI={part:'🔧',bike:'🚲',service:'🛠'};
+function refIcon(t){return REFI[t]||'🔗';}
+function isImg(n,t){return (t||'').startsWith('image/')||/\.(png|jpe?g|gif|webp|bmp|svg|avif)$/i.test(n||'');}
+function fileUrl(m){
+  CH.uc=CH.uc||{}; if(CH.uc[m.id]) return Promise.resolve(CH.uc[m.id]);
+  return chatFile(m.id).then(b=>{ if(!b) return null;
+    if(!b.type&&isImg(m.file.name,'')) b=b.slice(0,b.size,'image/'+m.file.name.split('.').pop().toLowerCase().replace('jpg','jpeg').replace('svg','svg+xml'));
+    return CH.uc[m.id]=URL.createObjectURL(b); });
+}
+function openRef(x){
+  const sec={part:'warehouse',bike:'bikes',service:'price'}[x.t];
+  if(!can(sec,'view')){toast('Нет доступа к разделу');return;}
+  if(x.t==='part'){WH.q=x.label;WH.curId='';}
+  go(sec);
+}
+function pickRef(done){
+  const kinds=[['part','Запчасть','warehouse'],['bike','Велосипед','bikes'],['service','Услуга','price']].filter(k=>can(k[2],'view'));
+  if(!kinds.length){toast('Нет доступа к складу, велосипедам и прайсу');return;}
+  openModal((box,close)=>{
+    box.appendChild(el('h3','','Прикрепить к сообщению'));
+    let kind=kinds[0][0];
+    const tabs=el('div','tabs'), q=el('input'), list=el('div');
+    q.type='search'; q.placeholder='Поиск…';
+    const items=()=>{
+      if(kind==='part'){const by={};DB.warehouse.forEach(n=>by[n.id]=n);
+        return DB.warehouse.filter(n=>n.type==='item').map(n=>({t:'part',id:n.id,label:n.name,sub:'на складе: '+(n.qty||0)+(whPath(n,by)?' · '+whPath(n,by):'')}));}
+      if(kind==='bike') return DB.bikes.map(b=>({t:'bike',id:b.id,label:b.invNo+' · '+((b.brand||'')+' '+(b.model||'')).trim(),sub:(BIKE_STATES[b.state]||'')+(b.present===false?' · нет в наличии':'')}));
+      return DB.services.map(x=>({t:'service',id:x.id,label:x.name,sub:fmtMoney(x.price)}));
+    };
+    function draw(){
+      tabs.textContent='';
+      kinds.forEach(([k,v])=>tabs.appendChild(btn(v,kind===k?'on':'',()=>{kind=k;draw();})));
+      list.textContent='';
+      const w=q.value.trim().toLowerCase().replace(/ё/g,'е').split(/\s+/).filter(Boolean);
+      const a=items().filter(x=>{const h=(x.label+' '+x.sub).toLowerCase().replace(/ё/g,'е');return w.every(z=>h.includes(z));}).slice(0,100);
+      if(!a.length){list.appendChild(el('div','empty','Ничего не найдено'));return;}
+      a.forEach(x=>{const r=el('div','tile');r.style.marginBottom='6px';r.innerHTML='<div class="n">'+refIcon(x.t)+' '+esc(x.label)+'</div><div class="p">'+esc(x.sub)+'</div>';r.onclick=()=>{done(x);close();};list.appendChild(r);});
+    }
+    q.oninput=draw; box.appendChild(tabs); box.appendChild(q); box.appendChild(list);
+    const act=el('div','act'); act.appendChild(btn('Отмена','',close)); box.appendChild(act);
+    draw(); setTimeout(()=>q.focus(),30);
+  });
+}
+function renderChat(m,mini){
+  m.textContent='';
+  const card=el('div','card'); if(mini) card.style.cssText='margin:0;border:0;padding:8px';
+  const hd=el('div','row'); const h=el('h2','',mini?'':'Чат'); h.style.cssText='margin:0;flex:1'; hd.appendChild(h);
+  hd.appendChild(btn(prefs().snd===false?'🔕 Звук выкл.':'🔔 Звук вкл.','sm',()=>{setPref('snd',prefs().snd===false);ding();renderChat(m,mini);}));
+  hd.appendChild(btn('🔍 Поиск','sm',()=>{CH.so=!CH.so;sb.classList.toggle('hidden',!CH.so);if(!CH.so){CH.f={};drawChat(true);}else st.focus();}));
+  hd.style.marginBottom='10px'; card.appendChild(hd);
+  CH.f=CH.f||{};
+  const sb=el('div','row'); sb.style.marginBottom='8px'; sb.classList.toggle('hidden',!CH.so);
+  const st=el('input'); st.type='search'; st.placeholder='Поиск по тексту…'; st.value=CH.f.t||''; st.style.cssText='flex:1;min-width:140px';
+  const sa=el('select'); sa.style.width='auto'; sa.appendChild(Object.assign(el('option',null,'Все авторы'),{value:''}));
+  const au={}; CH.msgs.forEach(x=>au[x.uid]=x.name); Object.entries(au).forEach(([k,v])=>{const o=el('option',null,v);o.value=k;sa.appendChild(o);}); sa.value=CH.f.a||'';
+  const d1=el('input'), d2=el('input'); d1.type='date'; d2.type='date'; d1.style.width='auto'; d2.style.width='auto'; d1.value=CH.f.d1||''; d2.value=CH.f.d2||''; d1.title='С даты'; d2.title='По дату';
+  const cnt=el('span','mut'); CH.cntEl=cnt;
+  const run=()=>{CH.f={t:st.value.trim(),a:sa.value,d1:d1.value,d2:d2.value};drawChat(true);};
+  st.oninput=run; sa.onchange=run; d1.onchange=run; d2.onchange=run;
+  [st,sa,d1,d2].forEach(x=>sb.appendChild(x));
+  sb.appendChild(btn('Сбросить','sm',()=>{CH.f={};st.value='';sa.value='';d1.value='';d2.value='';drawChat(true);})); sb.appendChild(cnt);
+  card.appendChild(sb);
+  const box=el('div','chatbox'+(mini?' mini':'')); card.appendChild(box); CH.box=box;
+  const pend=el('div','mut'); card.appendChild(pend);
+  const emo=el('div','emo hidden'); card.appendChild(emo);
+  const row=el('div','row'); row.style.marginTop='8px';
+  const ta=el('textarea'); ta.rows=2; ta.placeholder='Сообщение… (Enter — отправить, Shift+Enter — новая строка)'; ta.style.flex='1';
+  EMO.forEach(e=>{const sp=el('span',null,e);sp.onclick=()=>{ta.value+=e;ta.focus();};emo.appendChild(sp);});
+  const fi=el('input'); fi.type='file'; fi.className='hidden'; let file=null, refs=[], pu=null, reply=null, edit=null;
+  function drawPend(){
+    pend.textContent=''; if(pu){URL.revokeObjectURL(pu);pu=null;}
+    if(edit){const r=el('div','row');r.style.margin='4px 0';r.appendChild(el('span','badge','✎ Редактирование сообщения'));r.appendChild(btn('Отмена','sm',()=>{edit=null;ta.value='';drawPend();}));pend.appendChild(r);}
+    if(reply){const r=el('div','row');r.style.margin='4px 0';r.appendChild(el('span','badge','↩ '+lbl({name:reply.name,prefix:reply.prefix})+': '+replySnip(reply)));r.appendChild(btn('×','sm d',()=>{reply=null;drawPend();}));pend.appendChild(r);}
+    if(file){const r=el('div','row'); r.style.margin='4px 0';
+      if(isImg(file.name,file.type)){pu=URL.createObjectURL(file);const i=el('img');i.src=pu;i.style.cssText='max-height:60px;border-radius:6px';r.appendChild(i);}
+      r.appendChild(el('span',null,'📎 '+file.name)); r.appendChild(btn('×','sm d',()=>{file=null;fi.value='';drawPend();})); pend.appendChild(r);}
+    refs.forEach((x,i)=>{const r=el('div','row');r.style.margin='4px 0';r.appendChild(el('span','badge',refIcon(x.t)+' '+x.label));r.appendChild(btn('×','sm d',()=>{refs.splice(i,1);drawPend();}));pend.appendChild(r);});
+  }
+  function setFile(f){ if(f&&f.size>15e6){toast('Файл больше 15 МБ');return;} file=f||null; drawPend(); }
+  fi.onchange=()=>setFile(fi.files[0]);
+  CH.setReply=x=>{edit=null;reply=x;drawPend();ta.focus();};
+  CH.setEdit=x=>{reply=null;file=null;refs=[];edit=x;ta.value=x.text||'';drawPend();ta.focus();};
+  ta.addEventListener('paste',e=>{const it=[...(e.clipboardData?e.clipboardData.items:[])].find(x=>x.type.startsWith('image/'));
+    if(it){const f=it.getAsFile(); if(f){e.preventDefault(); setFile(f);}}});
+  async function send(){
+    const text=smi(ta.value.trim()); if(edit){ if(!text&&!edit.file&&!(edit.refs||[]).length) return;
+      edit.text=text; edit.edited=new Date().toISOString(); edit.mentions=mentionIds(text);
+      await chatPut(edit,null); edit=null; ta.value=''; drawPend(); signalChat(); return; }
+    if(!text&&!file&&!refs.length) return;
+    const msg={id:uid('m_'),uid:ME.id,name:ME.name,prefix:ME.prefix||'',text,at:new Date().toISOString(),file:file?{name:file.name,type:file.type,size:file.size}:null,refs:refs.slice(),replyTo:reply?{id:reply.id,name:reply.name,prefix:reply.prefix,text:replySnip(reply)}:null,mentions:mentionIds(text)};
+    await chatPut(msg,file); ta.value=''; file=null; refs=[]; reply=null; fi.value=''; drawPend(); signalChat();
+  }
+  ta.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}};
+  row.appendChild(Object.assign(btn('📎','',()=>fi.click()),{title:'Прикрепить фото или документ'}));
+  row.appendChild(Object.assign(btn('🔗','',()=>pickRef(x=>{refs.push(x);drawPend();})),{title:'Прикрепить запчасть, велосипед или услугу'}));
+  row.appendChild(Object.assign(btn('@','',()=>pickStaff(n=>{ta.value+='@'+n+' ';ta.focus();})),{title:'Упомянуть сотрудника'})); row.appendChild(btn('😊','',()=>emo.classList.toggle('hidden')));
+  row.appendChild(ta); row.appendChild(btn('Отправить','p',send)); row.appendChild(fi);
+  card.appendChild(row); m.appendChild(card);
+  drawChat(true); markRead();
+}
+function ldate(iso){const d=new Date(iso);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function drawChat(force){
+  const box=CH.box; if(!box||!box.isConnected) return;
+  const stick=force||box.scrollHeight-box.scrollTop-box.clientHeight<80;
+  box.textContent='';
+  if(!CH.msgs.length){box.appendChild(el('div','empty','Сообщений пока нет'));return;}
+  const f=CH.f||{}, act=!!(f.t||f.a||f.d1||f.d2);
+  let list=CH.msgs;
+  if(f.t){const w=f.t.toLowerCase().replace(/ё/g,'е').split(/\s+/).filter(Boolean);
+    list=list.filter(m=>{const h=((m.text||'')+' '+(m.file?m.file.name:'')+' '+(m.refs||[]).map(x=>x.label).join(' ')).toLowerCase().replace(/ё/g,'е');return w.every(z=>h.includes(z));});}
+  if(f.a) list=list.filter(m=>m.uid===f.a);
+  if(f.d1) list=list.filter(m=>ldate(m.at)>=f.d1);
+  if(f.d2) list=list.filter(m=>ldate(m.at)<=f.d2);
+  if(CH.cntEl) CH.cntEl.textContent=act?'Найдено: '+list.length:'';
+  if(!list.length){box.appendChild(el('div','empty','Ничего не найдено'));return;}
+  if(!act) list=list.slice(-CH.lim);
+  let day=''; const rd=rdMap();
+  list.forEach(m=>{
+    const dt=new Date(m.at), d=dt.toLocaleDateString('ru-RU');
+    if(d!==day){day=d;box.appendChild(el('div','cday',d));}
+    const mine=m.uid===ME.id, w=el('div','msg'+(mine?' mine':''));
+    w.innerHTML='<div>'+(m.prefix?'<span class="badge">'+esc(m.prefix)+'</span> ':'')+'<b>'+esc(m.name)+'</b> <span class="mut">'+esc(dt.toLocaleString('ru-RU',{dateStyle:'short',timeStyle:'medium'}))+'</span>'+(m.edited?' <span class="mut">(изменено)</span>':'')+'</div>'
+      +(m.replyTo?'<div class="rq" data-r="'+esc(m.replyTo.id)+'"><b>'+esc(lbl({name:m.replyTo.name,prefix:m.replyTo.prefix}))+'</b><div>'+esc(m.replyTo.text||'')+'</div></div>':'')
+      +(m.text?'<div style="white-space:pre-wrap;word-break:break-word">'+hl(esc(m.text))+'</div>':'');
+    w.dataset.id=m.id; if((m.mentions||[]).includes(ME.id)) w.classList.add('mentioned');
+    w.querySelectorAll('.rq').forEach(q=>q.onclick=()=>{const t=box.querySelector('[data-id="'+q.dataset.r+'"]');if(t){t.scrollIntoView({block:'center'});t.classList.add('flash');setTimeout(()=>t.classList.remove('flash'),1500);}});
+    if(m.file){const f=el('div');w.appendChild(f);
+      fileUrl(m).then(u=>{ if(!u) return;
+        if(isImg(m.file.name,m.file.type)){const i=el('img');i.src=u;i.alt=m.file.name;i.className='cimg';i.onload=()=>{if(stick)box.scrollTop=box.scrollHeight;};
+          i.onclick=()=>openModal((bx,cl)=>{const im=el('img');im.src=u;im.style.cssText='max-width:100%;display:block;margin:auto';bx.appendChild(im);const ac=el('div','act');ac.appendChild(btn('Закрыть','',cl));bx.appendChild(ac);});
+          f.appendChild(i);}
+        else{const a=el('a',null,'📄 '+m.file.name+' ('+Math.ceil(m.file.size/1024)+' КБ)');a.href=u;a.download=m.file.name;f.appendChild(a);}});}
+    (m.refs||[]).forEach(x=>{const c=el('div','tile');c.style.cssText='margin-top:6px;padding:8px';c.innerHTML='<div class="n">'+refIcon(x.t)+' '+esc(x.label)+'</div><div class="p">'+esc(x.sub||'')+'</div>';c.onclick=()=>openRef(x);w.appendChild(c);});
+    const ac=el('div','row'); ac.style.cssText='gap:4px;margin-top:4px';
+    ac.appendChild(btn('↩ Ответить','sm',()=>CH.setReply&&CH.setReply(m)));
+    if(mine&&m.text) ac.appendChild(btn('✎ Изменить','sm',()=>CH.setEdit&&CH.setEdit(m)));
+    w.appendChild(ac);
+    if(mine){const rs=DB.staff.filter(x=>x.id!==m.uid&&rd[x.id]&&rd[x.id]>=m.at).map(x=>x.name);
+      w.appendChild(el('div','mut',rs.length?'✓✓ Прочитали: '+rs.slice(0,4).join(', ')+(rs.length>4?' и ещё '+(rs.length-4):''):'✓ Отправлено'));}
+    if(mine||ME.role==='admin') w.appendChild(btn('🗑','sm d cdel',()=>{if(!confirm('Удалить сообщение?'))return;chatDel(m.id).then(signalChat);}));
+    box.appendChild(w);
+  });
+  if(stick) box.scrollTop=box.scrollHeight;
+}
+function updFab(){
+  $('#fab').classList.toggle('hidden',!ME||CURRENT==='chat');
+  if(CURRENT==='chat'){CH.mini=false;$('#miniChat').classList.add('hidden');$('#miniBody').textContent='';}
+}
+function toggleMini(open){
+  CH.mini=open; $('#miniChat').classList.toggle('hidden',!open);
+  if(open) renderChat($('#miniBody'),true); else {$('#miniBody').textContent='';CH.box=null;}
+}
+$('#fab').onclick=()=>toggleMini(!CH.mini);
+$('#miniX').onclick=()=>toggleMini(false);
+$('#miniOpen').onclick=()=>go('chat');
+
+/* =========================================================
+   СТАРТ
+   ========================================================= */
+(async function boot(){
+  applyTheme(document.documentElement.dataset.theme||'light');
+  try{
+    localStorage.setItem('__test__','1');
+    localStorage.removeItem('__test__');
+  }catch(e){
+    alert('Браузер блокирует localStorage. Откройте файл через локальный сервер (например, python -m http.server) или через GitHub Pages.');
+  }
+  try{
+    await initSupabase();
+  }catch(e){
+    showConnError('Не удалось подключиться к Supabase: '+e.message);
+    return;
+  }
+  await loadAllFromServer();
+  const s = loadSession();
+  if(s){
+    ME = s; PERMS = buildPerms(s);
+    enterApp();
+  } else {
+    showLogin();
+  }
+})();
+</script>
+</body>
+</html>
